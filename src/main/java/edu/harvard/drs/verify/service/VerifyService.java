@@ -25,7 +25,6 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.harvard.drs.verify.config.AwsConfig;
-import edu.harvard.drs.verify.dto.InventoryDigest;
 import edu.harvard.drs.verify.dto.OcflInventory;
 import edu.harvard.drs.verify.dto.VerificationError;
 import edu.harvard.drs.verify.exception.VerificationException;
@@ -108,7 +107,6 @@ public class VerifyService {
         log.info("Veryfing ingest object {}", id);
 
         OcflInventory inventory = getInventory(id);
-        InventoryDigest digest = getInventoryDigest(id, inventory);
 
         Map<String, VerificationError> errors = new ConcurrentHashMap<>();
 
@@ -119,11 +117,13 @@ public class VerifyService {
                 for (String manifestEntry : manifest.getValue()) {
                     String key = format("%s/%s", valueOf(id), manifestEntry);
 
-                    if (digest.getChecksums().containsKey(key)) {
+                    try {
+                        HeadObjectResponse response = getHeadObject(key);
 
-                        if (input.containsKey(key)) {
-                            String expected = input.get(key);
-                            String actual = digest.getChecksums().get(key);
+                        String actual = removeEnd(removeStart(response.eTag(), "\""), "\"");
+
+                        if (input.containsKey(manifestEntry)) {
+                            String expected = input.remove(manifestEntry);
 
                             if (!expected.equals(actual)) {
                                 VerificationError error = VerificationError.builder()
@@ -132,18 +132,26 @@ public class VerifyService {
                                     .actual(actual)
                                     .build();
 
-                                errors.put(key, error);
+                                errors.put(manifestEntry, error);
                             }
                         } else {
-                            errors.put(key, VerificationError.from("Missing input checksum"));
+                            errors.put(manifestEntry, VerificationError.from("Missing input checksum"));
                         }
-                    } else if (digest.getErrors().containsKey(key)) {
-                        errors.put(key, VerificationError.from(digest.getErrors().get(key)));
-                    } else {
-                        errors.put(key, VerificationError.from("Unknown key"));
+
+                    } catch (Exception e) {
+                        log.error(format("Failed to get head obect of manifest entry %s", key), e);
+                        errors.put(manifestEntry, VerificationError.from(e.getMessage()));
                     }
                 }
             });
+
+        if (!input.isEmpty()) {
+            input.entrySet()
+                .parallelStream()
+                .forEach(entry -> {
+                    errors.put(entry.getKey(), VerificationError.from("Not found in inventory manifest"));
+            });
+        }
 
         if (!errors.isEmpty()) {
             throw new VerificationException(errors);
@@ -158,32 +166,38 @@ public class VerifyService {
         log.info("Veryfing update object {}", id);
 
         OcflInventory inventory = getInventory(id);
-        InventoryDigest digest = getInventoryDigest(id, inventory);
 
         Map<String, VerificationError> errors = new ConcurrentHashMap<>();
 
         input.entrySet()
             .parallelStream()
-            .forEach(in -> {
-                String key = in.getKey();
-                String expected = in.getValue();
+            .forEach(entry -> {
+                String key = format("%s/%s", valueOf(id), entry.getKey());
 
-                if (digest.getChecksums().containsKey(key)) {
-                    String actual = digest.getChecksums().get(key);
+                if (inventory.contains(entry.getKey())) {
+                    String expected = entry.getValue();
 
-                    if (!expected.equals(actual)) {
-                        VerificationError error = VerificationError.builder()
-                            .error("Checksums do not match")
-                            .expected(expected)
-                            .actual(actual)
-                            .build();
-
-                        errors.put(key, error);
+                    try {
+                        HeadObjectResponse response = getHeadObject(key);
+    
+                        String actual = removeEnd(removeStart(response.eTag(), "\""), "\"");
+    
+                        if (!expected.equals(actual)) {
+                            VerificationError error = VerificationError.builder()
+                                .error("Checksums do not match")
+                                .expected(expected)
+                                .actual(actual)
+                                .build();
+    
+                            errors.put(entry.getKey(), error);
+                        }
+    
+                    } catch (Exception e) {
+                        log.error(format("Failed to get head obect of manifest entry %s", key), e);
+                        errors.put(entry.getKey(), VerificationError.from(e.getMessage()));
                     }
-                } else if (digest.getErrors().containsKey(key)) {
-                    errors.put(key, VerificationError.from(digest.getErrors().get(key)));
                 } else {
-                    errors.put(key, VerificationError.from("Unknown key"));
+                    errors.put(entry.getKey(), VerificationError.from("Not found in inventory manifest"));
                 }
             });
 
@@ -246,41 +260,6 @@ public class VerifyService {
 
     private void cleanupStagingDirectory(Path path) throws IOException {
         FileUtils.deleteDirectory(path.toFile().getParentFile().getParentFile());
-    }
-
-    private InventoryDigest getInventoryDigest(Long id, OcflInventory inventory) {
-        final long startTime = System.nanoTime();
-
-        final Map<String, String> checksums = new ConcurrentHashMap<>();
-        final Map<String, String> errors = new ConcurrentHashMap<>();
-
-        inventory.getManifest()
-            .entrySet()
-            .parallelStream()
-            .forEach(manifest -> {
-                for (String manifestEntry : manifest.getValue()) {
-                    String key = format("%s/%s", valueOf(id), manifestEntry);
-
-                    try {
-                        HeadObjectResponse response = getHeadObject(key);
-
-                        String checksum = removeEnd(removeStart(response.eTag(), "\""), "\"");
-
-                        checksums.put(key, checksum);
-                    } catch (Exception e) {
-                        log.error(format("Failed to get head obect of manifest entry %s", key), e);
-                        errors.put(key, e.getMessage());
-                    }
-                }
-            });
-
-        double timeElapsed = ((System.nanoTime() - startTime) / (double) 1000000);
-        log.info("{} milliseconds to get inventory checksums for {}", timeElapsed, id);
-
-        return InventoryDigest.builder()
-            .checksums(checksums)
-            .errors(errors)
-            .build();
     }
 
     private HeadObjectResponse getHeadObject(String key) {

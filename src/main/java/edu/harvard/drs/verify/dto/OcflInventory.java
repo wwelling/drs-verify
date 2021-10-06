@@ -16,6 +16,7 @@
 
 package edu.harvard.drs.verify.dto;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,4 +35,11 @@ public class OcflInventory {
     private Map<String, Map<String, List<String>>> fixity = new HashMap<>();
     private Map<String, List<String>> manifest = new HashMap<>();
     private Map<String, OcflVersion> versions = new HashMap<>();
+
+    public boolean contains(String key) {
+        return manifest.values()
+            .parallelStream()
+            .flatMap(Collection::stream)
+            .anyMatch(entry -> key.equals(entry));
+    }
 }
