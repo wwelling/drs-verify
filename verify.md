@@ -95,6 +95,9 @@ Provide key checksum pairs of entire OCFL manifest.
         "error": "Checksums do not match",
         "expected": "d5504e692af05bceb4e4760b3700c07d",
         "actual": "d5504e692af05bceb4e4760b3700c07f"
+    },
+    "v00001/content/data/91234314.pdf": {
+        "error": "Not found in inventory manifest",
     }
 }
 ```
@@ -130,7 +133,8 @@ Provide key checksum pairs of updated OCFL manifest entries.
     "v00001/content/metadata/400005073_aes57.xml": "1f982931f12de9309157b4e891e0abc7",
     "v00001/content/metadata/400005079_containerMD.xml": "d5504e692af05bceb4e4760b3700c07f",
     "v00001/content/data/400005069.xml": "ece0d3d596258f4215c3bc35b0b36e34",
-    "v00001/content/data/400005078.mp3": "1db61ef8c9f1243b80837d52895d688b"
+    "v00001/content/data/400005078.mp3": "1db61ef8c9f1243b80837d52895d688b",
+    "v00001/content/data/91234314.pdf": "2143c243b80837d5283242395d6ac65d"
 }
 ```
 
@@ -166,9 +170,6 @@ Provide key checksum pairs of updated OCFL manifest entries.
 
 ```json
 {
-    "v00001/content/data/400005076.mp3": {
-        "error": "Missing input checksum"
-    },
     "v00001/content/metadata/400005074_aes57.xml": {
         "error": "Unknown key"
     },
@@ -184,6 +185,9 @@ Provide key checksum pairs of updated OCFL manifest entries.
         "error": "Checksums do not match",
         "expected": "d5504e692af05bceb4e4760b3700c07d",
         "actual": "d5504e692af05bceb4e4760b3700c07f"
+    },
+    "v00001/content/data/91234314.pdf": {
+        "error": "Not found in inventory manifest",
     }
 }
 ```
