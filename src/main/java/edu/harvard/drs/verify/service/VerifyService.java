@@ -179,19 +179,19 @@ public class VerifyService {
 
                     try {
                         HeadObjectResponse response = getHeadObject(key);
-    
+
                         String actual = removeEnd(removeStart(response.eTag(), "\""), "\"");
-    
+
                         if (!expected.equals(actual)) {
                             VerificationError error = VerificationError.builder()
                                 .error("Checksums do not match")
                                 .expected(expected)
                                 .actual(actual)
                                 .build();
-    
+
                             errors.put(entry.getKey(), error);
                         }
-    
+
                     } catch (Exception e) {
                         log.error(format("Failed to get head obect of manifest entry %s", key), e);
                         errors.put(entry.getKey(), VerificationError.from(e.getMessage()));
@@ -208,7 +208,7 @@ public class VerifyService {
     }
 
     private OcflInventory getInventory(Long id) throws IOException {
-        String key = id + "/inventory.json";
+        String key = format("%s/inventory.json", valueOf(id));
 
         Path path = Paths.get(
             externalStagingPath,
@@ -231,10 +231,8 @@ public class VerifyService {
         File file = path.toFile();
         File directory = file.getParentFile();
 
-        if (!directory.exists()) {
-            if (!directory.mkdirs()) {
-                throw new IOException(format("Failed to create staging directory %s",  directory.getPath()));
-            }
+        if (!directory.mkdirs()) {
+            throw new IOException(format("Failed to create staging directory %s",  directory.getPath()));
         }
     }
 
