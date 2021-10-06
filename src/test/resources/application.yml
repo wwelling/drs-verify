@@ -1,2 +1,6 @@
+aws:
+  bucketName: test-preservation
+  endpointOverride: http://localhost:9090
+
 http.port: 9090
 root: target/s3
