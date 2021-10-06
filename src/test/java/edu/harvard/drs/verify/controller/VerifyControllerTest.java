@@ -14,23 +14,11 @@
  * limitations under the License.
  */
 
-package edu.harvard.drs.verify;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+package edu.harvard.drs.verify.controller;
 
 /**
- * DRS verify application tests.
+ * DRS verify controller tests.
  */
-@SpringBootTest
-class VerifyApplicationTests {
-
-    @Test
-    void contextLoads() {
-        VerifyApplication.main(new String[] {});
-        assertTrue(true);
-    }
+public class VerifyControllerTest {
 
 }

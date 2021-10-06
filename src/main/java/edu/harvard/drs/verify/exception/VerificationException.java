@@ -14,23 +14,30 @@
  * limitations under the License.
  */
 
-package edu.harvard.drs.verify;
+package edu.harvard.drs.verify.exception;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import edu.harvard.drs.verify.dto.VerificationError;
+import java.util.Map;
 
 /**
- * DRS verify application tests.
+ * Verification exception.
  */
-@SpringBootTest
-class VerifyApplicationTests {
+public class VerificationException extends Exception {
 
-    @Test
-    void contextLoads() {
-        VerifyApplication.main(new String[] {});
-        assertTrue(true);
+    private final Map<String, VerificationError> errors;
+
+    /**
+     * Verification exception from errors.
+     *
+     * @param errors verification errors
+     */
+    public VerificationException(Map<String, VerificationError> errors) {
+        super("Verification failed");
+        this.errors = errors;
+    }
+
+    public Map<String, VerificationError> getErrors() {
+        return errors;
     }
 
 }

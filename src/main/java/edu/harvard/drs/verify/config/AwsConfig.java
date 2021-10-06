@@ -14,23 +14,21 @@
  * limitations under the License.
  */
 
-package edu.harvard.drs.verify;
+package edu.harvard.drs.verify.config;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import lombok.Data;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import software.amazon.awssdk.regions.Region;
 
 /**
- * DRS verify application tests.
+ * AWS config.
  */
-@SpringBootTest
-class VerifyApplicationTests {
-
-    @Test
-    void contextLoads() {
-        VerifyApplication.main(new String[] {});
-        assertTrue(true);
-    }
-
+@Data
+@ConfigurationProperties(prefix = "aws")
+public class AwsConfig {
+    private Region region = Region.US_EAST_1;
+    private String bucketName = "drs-preservation";
+    private String accessKeyId = "foo";
+    private String secretAccessKey = "bar";
+    private String endpointOverride;
 }

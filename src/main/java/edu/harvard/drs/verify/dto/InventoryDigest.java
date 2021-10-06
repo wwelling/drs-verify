@@ -14,23 +14,20 @@
  * limitations under the License.
  */
 
-package edu.harvard.drs.verify;
+package edu.harvard.drs.verify.dto;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import java.util.Map;
+import lombok.Builder;
+import lombok.Data;
 
 /**
- * DRS verify application tests.
+ * Inventory digest of checksums with errors.
  */
-@SpringBootTest
-class VerifyApplicationTests {
-
-    @Test
-    void contextLoads() {
-        VerifyApplication.main(new String[] {});
-        assertTrue(true);
-    }
-
+@Data
+@Builder
+public class InventoryDigest {
+    // map of S3 object key to error
+    private Map<String, String> errors;
+    // map of S3 object key to checksum (eTag)
+    private Map<String, String> checksums;
 }

@@ -14,7 +14,7 @@ logging:
   level:
     edu.harvard.drs: DEBUG
     org.springframework: INFO
-    web: DEBUG
+    web: INFO
 
 management:
   endpoint:
@@ -43,9 +43,9 @@ spring:
     active: development
 
   devtools:
-    add-properties: true
+    addProperties: true
     livereload:
       enabled: true
 
   main:
-    lazy-initialization: true
+    lazyInitialization: true

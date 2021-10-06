@@ -14,23 +14,15 @@
  * limitations under the License.
  */
 
-package edu.harvard.drs.verify;
+package edu.harvard.drs.verify.dto;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import lombok.Data;
 
 /**
- * DRS verify application tests.
+ * OCFL user.
  */
-@SpringBootTest
-class VerifyApplicationTests {
-
-    @Test
-    void contextLoads() {
-        VerifyApplication.main(new String[] {});
-        assertTrue(true);
-    }
-
+@Data
+public class OcflUser {
+    private String name;
+    private String address;
 }

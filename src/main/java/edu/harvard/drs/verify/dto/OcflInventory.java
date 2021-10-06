@@ -14,23 +14,24 @@
  * limitations under the License.
  */
 
-package edu.harvard.drs.verify;
+package edu.harvard.drs.verify.dto;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import lombok.Data;
 
 /**
- * DRS verify application tests.
+ * OCFL inventory.
  */
-@SpringBootTest
-class VerifyApplicationTests {
-
-    @Test
-    void contextLoads() {
-        VerifyApplication.main(new String[] {});
-        assertTrue(true);
-    }
-
+@Data
+public class OcflInventory {
+    private String id;
+    private String type;
+    private String digestAlgorithm;
+    private String head;
+    private String contentDirectory;
+    private Map<String, Map<String, List<String>>> fixity = new HashMap<>();
+    private Map<String, List<String>> manifest = new HashMap<>();
+    private Map<String, OcflVersion> versions = new HashMap<>();
 }

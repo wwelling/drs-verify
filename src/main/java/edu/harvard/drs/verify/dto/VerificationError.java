@@ -14,27 +14,34 @@
  * limitations under the License.
  */
 
-package edu.harvard.drs.verify;
+package edu.harvard.drs.verify.dto;
 
-import edu.harvard.drs.verify.config.AwsConfig;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Builder;
+import lombok.Data;
 
 /**
- * DRS Verify Application.
+ * Verification error.
  */
-@SpringBootApplication
-@EnableConfigurationProperties(AwsConfig.class)
-public class VerifyApplication {
+@Data
+@Builder
+@JsonInclude(value = NON_NULL)
+public class VerificationError {
+    private String error;
+    private String expected;
+    private String actual;
 
     /**
-     * DRS Verify entry point.
+     * Convinience method for simple error.
      *
-     * @param args application arguments
+     * @param error error message
+     * @return verification error
      */
-    public static void main(String[] args) {
-        SpringApplication.run(VerifyApplication.class, args);
+    public static VerificationError from(String error) {
+        return VerificationError.builder()
+            .error(error)
+            .build();
     }
-
 }
