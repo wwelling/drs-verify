@@ -96,6 +96,22 @@ public class VerifyServiceTest {
     }
 
     @Test
+    public void testVerifyUpdate() throws IOException, VerificationException {
+        Long id = 1254624L;
+
+        Map<String, String> input = new HashMap<>() {
+            {
+                put("v00001/content/descriptor/400000252_mets.xml", "52fe5cdbf844ebc72fc5d1e10f036279");
+                put("v00001/content/metadata/400000252_structureMap.xml", "17e0a42b63075f7a60fa1db80cfe26b9");
+            }
+        };
+
+        verifyService.verifyUpdate(id, input);
+
+        assertTrue(true);
+    }
+
+    @Test
     public void testGetInventory() throws IOException {
         Long id = 1254624L;
 
