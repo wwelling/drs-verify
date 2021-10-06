@@ -13,8 +13,6 @@ DRS Verify service provides API for verifying ingest and update of OCFL objects 
 * [Health](actuator.md#health) : `GET /actuator/health`
 * [Logfile](actuator.md#logfile) : `GET /actuator/logfile`
 
-## Endpoints that require Authentication
-
 ## Environment
 
 Here are some of the environment variables that can be set. See [application.yml](https://github.com/wwelling/drs-verify/blob/main/src/main/resources/application.yml) configuration that can be set via environment variables.
