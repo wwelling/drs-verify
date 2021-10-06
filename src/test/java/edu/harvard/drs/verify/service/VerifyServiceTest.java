@@ -16,9 +16,11 @@
 
 package edu.harvard.drs.verify.service;
 
+import static java.lang.String.valueOf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 
@@ -28,6 +30,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import edu.harvard.drs.verify.AmazonS3TestHelper;
 import edu.harvard.drs.verify.config.AwsConfig;
 import edu.harvard.drs.verify.dto.OcflInventory;
+import edu.harvard.drs.verify.dto.VerificationError;
 import edu.harvard.drs.verify.exception.VerificationException;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -93,6 +96,55 @@ public class VerifyServiceTest {
         verifyService.verifyIngest(id, input);
 
         assertTrue(true);
+    }
+
+    @Test
+    public void testVerifyIngestValidationFailed(final S3Client s3) throws IOException, VerificationException {
+        Long id = 1254624L;
+
+        Map<String, String> input = new HashMap<>() {
+            {
+                put("v00001/content/descriptor/400000252_mets.xml", "52fe5cdbf844ebc72fc5d1e10f036280");
+                put("v00001/content/metadata/400000252_structureMap.xml", "17e0a42b63075f7a60fa1db80cfe26b9");
+                put("v00001/content/data/400000254.txt", "872c1b7d198907a3f3f9e6735b32f0ee");
+                put("v00001/content/data/9991231.pdf", "32723094875a987b9797dd987ea979712");
+            }
+        };
+        
+        AmazonS3TestHelper.deleteObject(s3, "1254624/v00001/content/data/400000254.txt");
+
+        VerificationException exception = assertThrows(VerificationException.class, () -> {
+            verifyService.verifyIngest(id, input);
+        });
+
+        assertFalse(exception.getErrors().isEmpty());
+
+        assertEquals(4, exception.getErrors().size());
+
+        VerificationError checksumError = exception.getErrors().get("v00001/content/descriptor/400000252_mets.xml");
+        assertNotNull(checksumError);
+        assertEquals("Checksums do not match", checksumError.getError());
+        assertEquals("52fe5cdbf844ebc72fc5d1e10f036280", checksumError.getExpected());
+        assertEquals("52fe5cdbf844ebc72fc5d1e10f036279", checksumError.getActual());
+
+        VerificationError missingError = exception.getErrors().get("v00001/content/metadata/400000254_textMD.xml");
+        assertNotNull(missingError);
+        assertEquals("Missing input checksum", missingError.getError());
+
+        VerificationError s3Error = exception.getErrors().get("v00001/content/data/400000254.txt");
+        assertNotNull(s3Error);
+
+        VerificationError unexpectedError = exception.getErrors().get("v00001/content/data/9991231.pdf");
+        assertNotNull(unexpectedError);
+        assertEquals("Not found in inventory manifest", unexpectedError.getError());
+
+        Path path = Path.of(
+            "src/test/resources/inventory",
+            valueOf(id),
+            "v00001/content/data/400000254.txt"
+        );
+
+        AmazonS3TestHelper.putObject(s3, "1254624/v00001/content/data/400000254.txt", path.toFile());
     }
 
     @Test
