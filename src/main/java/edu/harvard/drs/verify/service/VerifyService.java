@@ -208,8 +208,6 @@ public class VerifyService {
     }
 
     private OcflInventory getInventory(Long id) throws IOException {
-        final long startTime = System.nanoTime();
-
         String key = id + "/inventory.json";
 
         Path path = Paths.get(
@@ -225,9 +223,6 @@ public class VerifyService {
         OcflInventory inventory = readInventoryFile(path);
 
         cleanupStagingDirectory(path);
-
-        double timeElapsed = ((System.nanoTime() - startTime) / (double) 1000000);
-        log.info("{} milliseconds to get inventory for {}", timeElapsed, id);
 
         return inventory;
     }
