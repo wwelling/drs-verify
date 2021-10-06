@@ -16,7 +16,9 @@ Provide key checksum pairs of entire OCFL manifest.
 }
 ```
 
-**Data example** All manifest entries must be included.
+**Data example**
+
+All manifest entries must be included.
 
 ```json
 {
@@ -120,7 +122,9 @@ Provide key checksum pairs of updated OCFL manifest entries.
 }
 ```
 
-**Data example** Update manifest entries must be included.
+**Data example**
+
+Update manifest entries must be included.
 
 ```json
 {

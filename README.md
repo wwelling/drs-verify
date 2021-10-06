@@ -4,6 +4,8 @@ DRS Verify service provides API for verifying ingest and update of OCFL objects 
 
 ## API
 
+### Verify
+
 * [Verify](verify.md#verify) : `POST /verify/{id}`
 * [Verify Update](verify.md#verify-update) : `POST /verify/{id}/update`
 
