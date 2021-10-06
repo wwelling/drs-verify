@@ -25,6 +25,7 @@ import edu.harvard.drs.verify.exception.VerificationException;
 import edu.harvard.drs.verify.service.VerifyService;
 import java.io.IOException;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -38,6 +39,7 @@ import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
 /**
  * Verify controller.
  */
+@Slf4j
 @RestController
 @RequestMapping("verify")
 public class VerifyController {
@@ -51,7 +53,7 @@ public class VerifyController {
      * @param id    DRS object id
      * @param input input checksum map
      * @throws IOException either not found or internal server error
-     * @throws VerificationException conflict
+     * @throws VerificationException verification failed
      */
     @PostMapping("{id}")
     public void verify(
@@ -67,7 +69,7 @@ public class VerifyController {
      * @param id    DRS object id
      * @param input input checksum map
      * @throws IOException either not found or internal server error
-     * @throws VerificationException conflict
+     * @throws VerificationException verification failed
      */
     @PostMapping("{id}/update")
     public void verifyUpdate(
@@ -80,6 +82,7 @@ public class VerifyController {
     @ResponseStatus(value = INTERNAL_SERVER_ERROR)
     @ExceptionHandler(IOException.class)
     public String handleIoException(IOException e) {
+        log.error(e.getMessage(), e);
         return e.getMessage();
     }
 
