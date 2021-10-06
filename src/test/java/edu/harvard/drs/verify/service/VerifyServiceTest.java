@@ -213,7 +213,7 @@ public class VerifyServiceTest {
 
         OcflInventory inventory = verifyService.getInventory(id);
 
-        assertNotNull(inventory);
+        assertInventory(inventory);
     }
 
     @Test
@@ -247,7 +247,7 @@ public class VerifyServiceTest {
 
         OcflInventory inventory = verifyService.readInventoryFile(path);
 
-        assertNotNull(inventory);
+        assertInventory(inventory);
     }
 
     @Test
@@ -268,6 +268,90 @@ public class VerifyServiceTest {
         assertEquals("text/plain", response.contentType());
         assertEquals(611864L, response.contentLength());
         assertEquals("872c1b7d198907a3f3f9e6735b32f0ee", AmazonS3TestHelper.normalizeEtag(response.eTag()));
+    }
+
+    private void assertInventory(OcflInventory inventory) {
+        assertNotNull(inventory);
+        assertEquals("URN-3:HUL.DRS.OBJECT:1254624", inventory.getId());
+        assertEquals("https://ocfl.io/1.0/spec/#inventory", inventory.getType());
+        assertEquals("sha512", inventory.getDigestAlgorithm());
+        assertEquals("v00001", inventory.getHead());
+        assertEquals("content", inventory.getContentDirectory());
+        assertTrue(inventory.getFixity().isEmpty());
+        assertFalse(inventory.getManifest().isEmpty());
+        assertTrue(inventory.getManifest().containsKey(
+            "3fd49ddf921491702972a9386854a42d06cc7c9a8d50dac140b86936abc925e8"
+            + "fb10174d336dd1f88cb001fe4c8426e75d140ddbc067bbfb04bcb2f5b5fcc259"
+        ));
+        assertTrue(inventory.getManifest().containsKey(
+            "a98e03107a45f8ce9e94d0a12d266dd99900597b126ed96ecbf22256fe0b09f2"
+            + "8b6b586a0b696535b112ee3578baa3c69f7ff0c23616ffc515a95bee71fbe68c"
+        ));
+        assertTrue(inventory.getManifest().containsKey(
+            "fad537f28838500f1e232b980a3123852a0c60e1a57b22e505076a622b084dab"
+            + "01c67383f3df17274d771b2f2e0f6a1c38eb19a66512bc85dd432dbac7cf34a7"
+        ));
+        assertTrue(inventory.getManifest().containsKey(
+            "fdea3768ba483e0b54c9b6ccedbcedf01443d62a47272819e4715d46b990650f"
+            + "5d03827bd116ddc723155332cea220c9a2533ce8427c9e6d3913ee110f478218"
+        ));
+        assertTrue(inventory.getManifest().get(
+            "3fd49ddf921491702972a9386854a42d06cc7c9a8d50dac140b86936abc925e8"
+            + "fb10174d336dd1f88cb001fe4c8426e75d140ddbc067bbfb04bcb2f5b5fcc259"
+        ).contains("v00001/content/metadata/400000252_structureMap.xml"));
+        assertTrue(inventory.getManifest().get(
+            "a98e03107a45f8ce9e94d0a12d266dd99900597b126ed96ecbf22256fe0b09f2"
+            + "8b6b586a0b696535b112ee3578baa3c69f7ff0c23616ffc515a95bee71fbe68c"
+        ).contains("v00001/content/descriptor/400000252_mets.xml"));
+        assertTrue(inventory.getManifest().get(
+            "fad537f28838500f1e232b980a3123852a0c60e1a57b22e505076a622b084dab"
+            + "01c67383f3df17274d771b2f2e0f6a1c38eb19a66512bc85dd432dbac7cf34a7"
+        ).contains("v00001/content/metadata/400000254_textMD.xml"));
+        assertTrue(inventory.getManifest().get(
+            "fdea3768ba483e0b54c9b6ccedbcedf01443d62a47272819e4715d46b990650f"
+            + "5d03827bd116ddc723155332cea220c9a2533ce8427c9e6d3913ee110f478218"
+        ).contains("v00001/content/data/400000254.txt"));
+        assertFalse(inventory.getVersions().isEmpty());
+        assertTrue(inventory.getVersions().containsKey("v00001"));
+        assertEquals("2021-07-14T14:59:16.98723Z", inventory.getVersions().get("v00001").getCreated());
+        assertEquals("PREMIS:refreshment", inventory.getVersions().get("v00001").getMessage());
+        assertEquals("DRS Migrator/2.0.1", inventory.getVersions().get("v00001").getUser().getName());
+        assertEquals(
+            "http://idtest.lib.harvard.edu:10020/wordshack/software/26906",
+            inventory.getVersions().get("v00001").getUser().getAddress()
+        );
+        assertTrue(inventory.getVersions().get("v00001").getState().containsKey(
+            "3fd49ddf921491702972a9386854a42d06cc7c9a8d50dac140b86936abc925e8"
+            + "fb10174d336dd1f88cb001fe4c8426e75d140ddbc067bbfb04bcb2f5b5fcc259"
+        ));
+        assertTrue(inventory.getVersions().get("v00001").getState().containsKey(
+            "a98e03107a45f8ce9e94d0a12d266dd99900597b126ed96ecbf22256fe0b09f2"
+            + "8b6b586a0b696535b112ee3578baa3c69f7ff0c23616ffc515a95bee71fbe68c"
+        ));
+        assertTrue(inventory.getVersions().get("v00001").getState().containsKey(
+            "fad537f28838500f1e232b980a3123852a0c60e1a57b22e505076a622b084dab"
+            + "01c67383f3df17274d771b2f2e0f6a1c38eb19a66512bc85dd432dbac7cf34a7"
+        ));
+        assertTrue(inventory.getVersions().get("v00001").getState().containsKey(
+            "fdea3768ba483e0b54c9b6ccedbcedf01443d62a47272819e4715d46b990650f"
+            + "5d03827bd116ddc723155332cea220c9a2533ce8427c9e6d3913ee110f478218"
+        ));
+        assertTrue(inventory.getVersions().get("v00001").getState().get(
+            "3fd49ddf921491702972a9386854a42d06cc7c9a8d50dac140b86936abc925e8"
+            + "fb10174d336dd1f88cb001fe4c8426e75d140ddbc067bbfb04bcb2f5b5fcc259"
+        ).contains("metadata/400000252_structureMap.xml"));
+        assertTrue(inventory.getVersions().get("v00001").getState().get(
+            "a98e03107a45f8ce9e94d0a12d266dd99900597b126ed96ecbf22256fe0b09f2"
+            + "8b6b586a0b696535b112ee3578baa3c69f7ff0c23616ffc515a95bee71fbe68c"
+        ).contains("descriptor/400000252_mets.xml"));
+        assertTrue(inventory.getVersions().get("v00001").getState().get(
+            "fad537f28838500f1e232b980a3123852a0c60e1a57b22e505076a622b084dab"
+            + "01c67383f3df17274d771b2f2e0f6a1c38eb19a66512bc85dd432dbac7cf34a7"
+        ).contains("metadata/400000254_textMD.xml"));
+        assertTrue(inventory.getVersions().get("v00001").getState().get(
+            "fdea3768ba483e0b54c9b6ccedbcedf01443d62a47272819e4715d46b990650f"
+            + "5d03827bd116ddc723155332cea220c9a2533ce8427c9e6d3913ee110f478218"
+        ).contains("data/400000254.txt"));
     }
 
 }
