@@ -164,6 +164,50 @@ public class VerifyServiceTest {
     }
 
     @Test
+    public void testVerifyUpdateValidationFailed(final S3Client s3) throws IOException, VerificationException {
+        Long id = 1254624L;
+
+        AmazonS3TestHelper.deleteObject(s3, "1254624/v00001/content/metadata/400000252_structureMap.xml");
+
+        Map<String, String> input = new HashMap<>() {
+            {
+                put("v00001/content/descriptor/400000252_mets.xml", "52fe5cdbf844ebc72fc5d1e10f036280");
+                put("v00001/content/metadata/400000252_structureMap.xml", "17e0a42b63075f7a60fa1db80cfe26b9");
+                put("v00001/content/data/9991231.pdf", "32723094875a987b9797dd987ea979712");
+            }
+        };
+
+        VerificationException exception = assertThrows(VerificationException.class, () -> {
+            verifyService.verifyUpdate(id, input);
+        });
+
+        assertFalse(exception.getErrors().isEmpty());
+
+        assertEquals(3, exception.getErrors().size());
+
+        VerificationError checksumError = exception.getErrors().get("v00001/content/descriptor/400000252_mets.xml");
+        assertNotNull(checksumError);
+        assertEquals("Checksums do not match", checksumError.getError());
+        assertEquals("52fe5cdbf844ebc72fc5d1e10f036280", checksumError.getExpected());
+        assertEquals("52fe5cdbf844ebc72fc5d1e10f036279", checksumError.getActual());
+
+        VerificationError s3Error = exception.getErrors().get("v00001/content/metadata/400000252_structureMap.xml");
+        assertNotNull(s3Error);
+
+        VerificationError unexpectedError = exception.getErrors().get("v00001/content/data/9991231.pdf");
+        assertNotNull(unexpectedError);
+        assertEquals("Not found in inventory manifest", unexpectedError.getError());
+
+        Path path = Path.of(
+            "src/test/resources/inventory",
+            valueOf(id),
+            "v00001/content/metadata/400000252_structureMap.xml"
+        );
+
+        AmazonS3TestHelper.putObject(s3, "1254624/v00001/content/metadata/400000252_structureMap.xml", path.toFile());
+    }
+
+    @Test
     public void testGetInventory() throws IOException {
         Long id = 1254624L;
 
