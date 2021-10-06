@@ -1,0 +1,30 @@
+{
+  "id" : "URN-3:HUL.DRS.OBJECT:1254624",
+  "type" : "https://ocfl.io/1.0/spec/#inventory",
+  "digestAlgorithm" : "sha512",
+  "head" : "v00001",
+  "contentDirectory" : "content",
+  "fixity" : { },
+  "manifest" : {
+    "3fd49ddf921491702972a9386854a42d06cc7c9a8d50dac140b86936abc925e8fb10174d336dd1f88cb001fe4c8426e75d140ddbc067bbfb04bcb2f5b5fcc259" : [ "v00001/content/metadata/400000252_structureMap.xml" ],
+    "a98e03107a45f8ce9e94d0a12d266dd99900597b126ed96ecbf22256fe0b09f28b6b586a0b696535b112ee3578baa3c69f7ff0c23616ffc515a95bee71fbe68c" : [ "v00001/content/descriptor/400000252_mets.xml" ],
+    "fad537f28838500f1e232b980a3123852a0c60e1a57b22e505076a622b084dab01c67383f3df17274d771b2f2e0f6a1c38eb19a66512bc85dd432dbac7cf34a7" : [ "v00001/content/metadata/400000254_textMD.xml" ],
+    "fdea3768ba483e0b54c9b6ccedbcedf01443d62a47272819e4715d46b990650f5d03827bd116ddc723155332cea220c9a2533ce8427c9e6d3913ee110f478218" : [ "v00001/content/data/400000254.txt" ]
+  },
+  "versions" : {
+    "v00001" : {
+      "created" : "2021-07-14T14:59:16.98723Z",
+      "message" : "PREMIS:refreshment",
+      "user" : {
+        "name" : "DRS Migrator/2.0.1",
+        "address" : "http://idtest.lib.harvard.edu:10020/wordshack/software/26906"
+      },
+      "state" : {
+        "3fd49ddf921491702972a9386854a42d06cc7c9a8d50dac140b86936abc925e8fb10174d336dd1f88cb001fe4c8426e75d140ddbc067bbfb04bcb2f5b5fcc259" : [ "metadata/400000252_structureMap.xml" ],
+        "a98e03107a45f8ce9e94d0a12d266dd99900597b126ed96ecbf22256fe0b09f28b6b586a0b696535b112ee3578baa3c69f7ff0c23616ffc515a95bee71fbe68c" : [ "descriptor/400000252_mets.xml" ],
+        "fad537f28838500f1e232b980a3123852a0c60e1a57b22e505076a622b084dab01c67383f3df17274d771b2f2e0f6a1c38eb19a66512bc85dd432dbac7cf34a7" : [ "metadata/400000254_textMD.xml" ],
+        "fdea3768ba483e0b54c9b6ccedbcedf01443d62a47272819e4715d46b990650f5d03827bd116ddc723155332cea220c9a2533ce8427c9e6d3913ee110f478218" : [ "data/400000254.txt" ]
+      }
+    }
+  }
+}

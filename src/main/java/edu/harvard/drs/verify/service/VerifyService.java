@@ -207,7 +207,7 @@ public class VerifyService {
 
     }
 
-    private OcflInventory getInventory(Long id) throws IOException {
+    OcflInventory getInventory(Long id) throws IOException {
         String key = format("%s/inventory.json", valueOf(id));
 
         Path path = Paths.get(
@@ -227,7 +227,7 @@ public class VerifyService {
         return inventory;
     }
 
-    private void setupStagingDirectory(Path path) throws IOException {
+    void setupStagingDirectory(Path path) throws IOException {
         File file = path.toFile();
         File directory = file.getParentFile();
 
@@ -236,7 +236,7 @@ public class VerifyService {
         }
     }
 
-    private void downloadObject(String key, Path path)
+    void downloadObject(String key, Path path)
         throws NoSuchKeyException, InvalidObjectStateException, AwsServiceException, SdkClientException, S3Exception {
 
         GetObjectRequest request = GetObjectRequest.builder()
@@ -247,15 +247,15 @@ public class VerifyService {
         this.s3.getObject(request, path);
     }
 
-    private OcflInventory readInventoryFile(Path path) throws JsonParseException, JsonMappingException, IOException {
+    OcflInventory readInventoryFile(Path path) throws JsonParseException, JsonMappingException, IOException {
         return this.om.readValue(path.toFile(), OcflInventory.class);
     }
 
-    private void cleanupStagingDirectory(Path path) throws IOException {
+    void cleanupStagingDirectory(Path path) throws IOException {
         FileUtils.deleteDirectory(path.toFile().getParentFile().getParentFile());
     }
 
-    private HeadObjectResponse getHeadObject(String key) {
+    HeadObjectResponse getHeadObject(String key) {
         HeadObjectRequest request = HeadObjectRequest.builder()
             .bucket(bucket)
             .key(key)

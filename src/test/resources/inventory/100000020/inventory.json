@@ -1,0 +1,32 @@
+{
+  "id" : "URN-3:HUL.DRS.OBJECT:100000020",
+  "type" : "https://ocfl.io/1.0/spec/#inventory",
+  "digestAlgorithm" : "sha512",
+  "head" : "v00001",
+  "contentDirectory" : "content",
+  "fixity" : { },
+  "manifest" : {
+    "11c9c5ad8aa7a291af376a098cf667d55f226d69654f3028c93b0e12095490c75918cb2b67714d95266147206ff853ef578dd0c58db481e0caa7e3cd55fb368d" : [ "v00001/content/metadata/400016240_structureMap.xml" ],
+    "24935982cc1c6471490b1fdf7ac5f4cf23c37ac27f476b89296bc91aaef9429693fe5b7c99f3253a493c6244817e3b550b34cba3024e3fe6ae11eebaaeb38113" : [ "v00001/content/metadata/400016240_mods.xml" ],
+    "92e78927e34c4622629311973e1d063326b54ea9a8ed346872e8ac32fea59634d0b8655d79ff08098bf12263bca398c17216ffe4fd7cd918e12969788bf99b4d" : [ "v00001/content/metadata/400016242_documentMD.xml" ],
+    "dee5c81ba85cbfd319f3d7d76da97c67b125e9650e7e5242f86e082d14afaa72dee39e1d29c2ce1b90278cc0f52b6bfe6909f79fde32fafed86cfc61a3b9635f" : [ "v00001/content/data/400016242.doc" ],
+    "f4cf6b251ce7c757d5c94ecf212af5c65ce34d1d7c171411d7244762262de1ae0bd049642d7e7c12d9da39602bdaf6060c06260328ff6a8084cb6339d8152424" : [ "v00001/content/descriptor/400016240_mets.xml" ]
+  },
+  "versions" : {
+    "v00001" : {
+      "created" : "2021-07-14T15:02:36.91376Z",
+      "message" : "PREMIS:refreshment",
+      "user" : {
+        "name" : "DRS Migrator/2.0.1",
+        "address" : "http://idtest.lib.harvard.edu:10020/wordshack/software/26906"
+      },
+      "state" : {
+        "11c9c5ad8aa7a291af376a098cf667d55f226d69654f3028c93b0e12095490c75918cb2b67714d95266147206ff853ef578dd0c58db481e0caa7e3cd55fb368d" : [ "metadata/400016240_structureMap.xml" ],
+        "24935982cc1c6471490b1fdf7ac5f4cf23c37ac27f476b89296bc91aaef9429693fe5b7c99f3253a493c6244817e3b550b34cba3024e3fe6ae11eebaaeb38113" : [ "metadata/400016240_mods.xml" ],
+        "92e78927e34c4622629311973e1d063326b54ea9a8ed346872e8ac32fea59634d0b8655d79ff08098bf12263bca398c17216ffe4fd7cd918e12969788bf99b4d" : [ "metadata/400016242_documentMD.xml" ],
+        "dee5c81ba85cbfd319f3d7d76da97c67b125e9650e7e5242f86e082d14afaa72dee39e1d29c2ce1b90278cc0f52b6bfe6909f79fde32fafed86cfc61a3b9635f" : [ "data/400016242.doc" ],
+        "f4cf6b251ce7c757d5c94ecf212af5c65ce34d1d7c171411d7244762262de1ae0bd049642d7e7c12d9da39602bdaf6060c06260328ff6a8084cb6339d8152424" : [ "descriptor/400016240_mets.xml" ]
+      }
+    }
+  }
+}
