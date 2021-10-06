@@ -36,6 +36,12 @@ public class OcflInventory {
     private Map<String, List<String>> manifest = new HashMap<>();
     private Map<String, OcflVersion> versions = new HashMap<>();
 
+    /**
+     * Checks to see if key is in manifest.
+     *
+     * @param key object key
+     * @return whether key is in manifest
+     */
     public boolean contains(String key) {
         return manifest.values()
             .parallelStream()

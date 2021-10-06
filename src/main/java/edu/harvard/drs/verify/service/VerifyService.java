@@ -150,7 +150,7 @@ public class VerifyService {
                 .parallelStream()
                 .forEach(entry -> {
                     errors.put(entry.getKey(), VerificationError.from("Not found in inventory manifest"));
-            });
+                });
         }
 
         if (!errors.isEmpty()) {
