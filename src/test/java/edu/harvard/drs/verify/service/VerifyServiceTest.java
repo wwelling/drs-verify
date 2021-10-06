@@ -28,8 +28,11 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import edu.harvard.drs.verify.AmazonS3TestHelper;
 import edu.harvard.drs.verify.config.AwsConfig;
 import edu.harvard.drs.verify.dto.OcflInventory;
+import edu.harvard.drs.verify.exception.VerificationException;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -72,6 +75,24 @@ public class VerifyServiceTest {
     @AfterAll
     public void cleanup(final S3Client s3) {
         AmazonS3TestHelper.cleanup(s3);
+    }
+
+    @Test
+    public void testVerifyIngest() throws IOException, VerificationException {
+        Long id = 1254624L;
+
+        Map<String, String> input = new HashMap<>() {
+            {
+                put("v00001/content/descriptor/400000252_mets.xml", "52fe5cdbf844ebc72fc5d1e10f036279");
+                put("v00001/content/metadata/400000254_textMD.xml", "0aff68fa16c9be40ca946f403e4e5180");
+                put("v00001/content/metadata/400000252_structureMap.xml", "17e0a42b63075f7a60fa1db80cfe26b9");
+                put("v00001/content/data/400000254.txt", "872c1b7d198907a3f3f9e6735b32f0ee");
+            }
+        };
+
+        verifyService.verifyIngest(id, input);
+
+        assertTrue(true);
     }
 
     @Test
