@@ -63,6 +63,14 @@ All manifest entries must be included.
 
 ### Or
 
+**Condition** : If request body malformed.
+
+**Code** : `400 Bad Request`
+
+**Content** : `Exception message`
+
+### Or
+
 **Condition** : If inventory.json not found.
 
 **Code** : `404 NOT FOUND`
@@ -153,6 +161,14 @@ Update manifest entries must be included.
 **Condition** : If something went wrong on server.
 
 **Code** : `500 INTENRAL SERVER ERROR`
+
+**Content** : `Exception message`
+
+### Or
+
+**Condition** : If request body malformed.
+
+**Code** : `400 Bad Request`
 
 **Content** : `Exception message`
 
