@@ -108,6 +108,8 @@ public class VerifyService {
 
         OcflInventory inventory = getInventory(id);
 
+        Map<String, String> wrappedInput = new ConcurrentHashMap<>(input);
+
         Map<String, VerificationError> errors = new ConcurrentHashMap<>();
 
         inventory.getManifest()
@@ -122,8 +124,8 @@ public class VerifyService {
 
                         String actual = removeEnd(removeStart(response.eTag(), "\""), "\"");
 
-                        if (input.containsKey(manifestEntry)) {
-                            String expected = input.remove(manifestEntry);
+                        if (wrappedInput.containsKey(manifestEntry)) {
+                            String expected = wrappedInput.remove(manifestEntry);
 
                             if (!expected.equals(actual)) {
                                 VerificationError error = VerificationError.builder()
@@ -145,8 +147,8 @@ public class VerifyService {
                 }
             });
 
-        if (!input.isEmpty()) {
-            input.entrySet()
+        if (!wrappedInput.isEmpty()) {
+            wrappedInput.entrySet()
                 .parallelStream()
                 .forEach(entry -> {
                     errors.put(entry.getKey(), VerificationError.from("Not found in inventory manifest"));
