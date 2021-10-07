@@ -16,6 +16,7 @@
 
 package edu.harvard.drs.verify.controller;
 
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.CONFLICT;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -27,6 +28,7 @@ import java.io.IOException;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -79,22 +81,28 @@ public class VerifyController {
         verifyService.verifyUpdate(id, input);
     }
 
-    @ResponseStatus(value = INTERNAL_SERVER_ERROR)
-    @ExceptionHandler(IOException.class)
-    public String handleIoException(IOException e) {
-        log.error(e.getMessage(), e);
+    @ResponseStatus(value = BAD_REQUEST)
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public String handleBadRequest(HttpMessageNotReadableException e) {
         return e.getMessage();
     }
 
     @ResponseStatus(value = CONFLICT)
     @ExceptionHandler(VerificationException.class)
-    public Map<String, VerificationError> handleVerificationException(VerificationException e) {
+    public Map<String, VerificationError> handleVerificationFailed(VerificationException e) {
         return e.getErrors();
     }
 
     @ResponseStatus(value = NOT_FOUND)
     @ExceptionHandler(NoSuchKeyException.class)
-    public String handleNoSuchKeyException(NoSuchKeyException e) {
+    public String handleNotFound(NoSuchKeyException e) {
+        return e.getMessage();
+    }
+
+    @ResponseStatus(value = INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(Exception.class)
+    public String handleInternalServerError(Exception e) {
+        log.error(e.getMessage(), e);
         return e.getMessage();
     }
 

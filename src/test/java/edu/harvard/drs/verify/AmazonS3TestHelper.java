@@ -119,8 +119,58 @@ public final class AmazonS3TestHelper {
         s3.close();
     }
 
+    /**
+     * Normalize eTag.
+     *
+     * @param etag eTag
+     * @return normalized eTag
+     */
     public static String normalizeEtag(String etag) {
         return removeEnd(removeStart(etag, "\""), "\"");
+    }
+
+    /**
+     * Put object in S3.
+     *
+     * @param s3     s3 client
+     * @param key    desired object key
+     * @param file   file to store
+     */
+    public static void putObject(final S3Client s3, String key, File file) {
+        PutObjectRequest request = PutObjectRequest.builder()
+            .bucket(bucket)
+            .key(key)
+            .build();
+
+        PutObjectResponse response = s3.putObject(request, RequestBody.fromFile(file));
+
+        assertEquals(md5Hex(file), normalizeEtag(response.eTag()));
+    }
+
+    /**
+     * Delete object in S3.
+     *
+     * @param s3  s3 client
+     * @param key object key
+     */
+    public static void deleteObject(final S3Client s3, String key) {
+        ObjectIdentifier identifier = ObjectIdentifier.builder()
+            .key(key)
+            .build();
+
+        Delete delete = Delete.builder()
+            .objects(identifier)
+            .build();
+
+        DeleteObjectsRequest request = DeleteObjectsRequest.builder()
+            .bucket(bucket)
+            .delete(delete)
+            .build();
+
+        DeleteObjectsResponse response = s3.deleteObjects(request);
+
+        assertTrue(response.hasDeleted());
+        assertFalse(response.hasErrors());
     }
 
     private static void populate(final S3Client s3)
@@ -155,25 +205,6 @@ public final class AmazonS3TestHelper {
         }
     }
 
-    /**
-     * Put object in S3.
-     *
-     * @param s3     s3 client
-     * @param bucket bucket name
-     * @param key    desired object key
-     * @param file   file to store
-     */
-    private static void putObject(final S3Client s3, String key, File file) {
-        PutObjectRequest request = PutObjectRequest.builder()
-            .bucket(bucket)
-            .key(key)
-            .build();
-
-        PutObjectResponse response = s3.putObject(request, RequestBody.fromFile(file));
-
-        assertEquals(md5Hex(file), normalizeEtag(response.eTag()));
-    }
-
     private static String md5Hex(File file) {
         try (InputStream is = new FileInputStream(file)) {
             return DigestUtils.md5Hex(is);
@@ -182,7 +213,5 @@ public final class AmazonS3TestHelper {
             throw new RuntimeException(e);
         }
     }
-
-    
 
 }
