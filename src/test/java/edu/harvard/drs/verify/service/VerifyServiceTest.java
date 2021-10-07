@@ -16,6 +16,7 @@
 
 package edu.harvard.drs.verify.service;
 
+import static java.lang.String.format;
 import static java.lang.String.valueOf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -223,6 +224,26 @@ public class VerifyServiceTest {
         verifyService.setupStagingDirectory(path);
 
         assertTrue(path.getParent().toFile().exists());
+
+        verifyService.cleanupStagingDirectory(path);
+    }
+
+    @Test
+    public void testSetupStagingDirectoryFailure() throws IOException {
+        Path path = Path.of("target/inventory/1254624/inventory.json");
+
+        verifyService.setupStagingDirectory(path);
+
+        IOException exception = assertThrows(IOException.class, () -> {
+            verifyService.setupStagingDirectory(path);
+        });
+
+        String expected = format(
+            "Failed to create staging directory %s",
+            path.toFile().getParentFile().getPath()
+        );
+
+        assertEquals(expected, exception.getMessage());
 
         verifyService.cleanupStagingDirectory(path);
     }

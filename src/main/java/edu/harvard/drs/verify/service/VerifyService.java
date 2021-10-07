@@ -232,7 +232,7 @@ public class VerifyService {
         File directory = file.getParentFile();
 
         if (!directory.mkdirs()) {
-            throw new IOException(format("Failed to create staging directory %s",  directory.getPath()));
+            throw new IOException(format("Failed to create staging directory %s", directory.getPath()));
         }
     }
 
