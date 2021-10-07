@@ -76,6 +76,22 @@ public class VerifyControllerTest {
     }
 
     @Test
+    public void shouldVerifyInternalServerError() throws Exception {
+        String content = "{"
+            + "\"v00001/content/descriptor/400016240_mets.xml\": {"
+            + "\"v00001/content/data/400016242.doc\": \"f9f645a42c784c2b3d2fe93ccbaf1992\""
+            + "}"
+            + "\"v00001/content/metadata/400016240_structureMap.xml\": \"06328e877392db47a2b59bfa9614470c\","
+            + "\"v00001/content/metadata/400016240_mods.xml\": \"2cffede56db677e4924b24622374ac3b\""
+            + "}";
+        this.mockMvc.perform(post("/verify/100000020")
+            .content(content)
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isInternalServerError());
+    }
+
+    @Test
     public void shouldVerifyConflict() throws Exception {
         String content = "{"
             + "\"v00001/content/descriptor/400016240_mets.xml\": \"88004448277e0ca3229808bd8fa403ab\","
@@ -113,6 +129,20 @@ public class VerifyControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk());
+    }
+
+    @Test
+    public void shouldVerifyUpdateInternalServerError() throws Exception {
+        String content = "{"
+            + "\"v00001/content/descriptor/400016240_mets.xml\": {"
+            + "\"v00001/content/data/400016242.doc\": \"f9f645a42c784c2b3d2fe93ccbaf1992\""
+            + "}"
+            + "}";
+        this.mockMvc.perform(post("/verify/100000020/update")
+            .content(content)
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isInternalServerError());
     }
 
     @Test

@@ -81,20 +81,20 @@ public class VerifyController {
 
     @ResponseStatus(value = INTERNAL_SERVER_ERROR)
     @ExceptionHandler(IOException.class)
-    public String handleIoException(IOException e) {
+    public String handleInternalServiceError(IOException e) {
         log.error(e.getMessage(), e);
         return e.getMessage();
     }
 
     @ResponseStatus(value = CONFLICT)
     @ExceptionHandler(VerificationException.class)
-    public Map<String, VerificationError> handleVerificationException(VerificationException e) {
+    public Map<String, VerificationError> handleVerificationFailed(VerificationException e) {
         return e.getErrors();
     }
 
     @ResponseStatus(value = NOT_FOUND)
     @ExceptionHandler(NoSuchKeyException.class)
-    public String handleNoSuchKeyException(NoSuchKeyException e) {
+    public String handleNotFound(NoSuchKeyException e) {
         return e.getMessage();
     }
 
