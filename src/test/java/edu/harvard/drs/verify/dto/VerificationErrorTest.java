@@ -48,4 +48,12 @@ public class VerificationErrorTest {
         assertEquals("bar", error.getActual());
     }
 
+    @Test
+    public void testVerificationErrorCompare() {
+        VerificationError one = VerificationError.from("Hello, Tests!");
+        VerificationError two = VerificationError.from("Hello, Tests!");
+
+        assertEquals(one, two);
+    }
+
 }
