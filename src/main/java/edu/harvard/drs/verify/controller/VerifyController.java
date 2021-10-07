@@ -101,7 +101,7 @@ public class VerifyController {
 
     @ResponseStatus(value = INTERNAL_SERVER_ERROR)
     @ExceptionHandler(Exception.class)
-    public String handleInternalServiceError(Exception e) {
+    public String handleInternalServerError(Exception e) {
         log.error(e.getMessage(), e);
         return e.getMessage();
     }
