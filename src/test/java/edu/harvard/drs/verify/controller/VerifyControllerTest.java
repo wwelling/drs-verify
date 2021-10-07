@@ -76,7 +76,7 @@ public class VerifyControllerTest {
     }
 
     @Test
-    public void shouldVerifyInternalServerError() throws Exception {
+    public void shouldVerifyBadRequestMalformed() throws Exception {
         String content = "{"
             + "\"v00001/content/descriptor/400016240_mets.xml\": {"
             + "\"v00001/content/data/400016242.doc\": \"f9f645a42c784c2b3d2fe93ccbaf1992\""
@@ -88,7 +88,15 @@ public class VerifyControllerTest {
             .content(content)
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isInternalServerError());
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void shouldVerifyBadRequest() throws Exception {
+        this.mockMvc.perform(post("/verify/100000020")
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -132,7 +140,7 @@ public class VerifyControllerTest {
     }
 
     @Test
-    public void shouldVerifyUpdateInternalServerError() throws Exception {
+    public void shouldVerifyUpdateBadRequestMalformed() throws Exception {
         String content = "{"
             + "\"v00001/content/descriptor/400016240_mets.xml\": {"
             + "\"v00001/content/data/400016242.doc\": \"f9f645a42c784c2b3d2fe93ccbaf1992\""
@@ -142,7 +150,15 @@ public class VerifyControllerTest {
             .content(content)
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isInternalServerError());
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void shouldVerifyUpdateBadRequest() throws Exception {
+        this.mockMvc.perform(post("/verify/100000020/update")
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isBadRequest());
     }
 
     @Test

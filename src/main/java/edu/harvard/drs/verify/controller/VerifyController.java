@@ -16,6 +16,7 @@
 
 package edu.harvard.drs.verify.controller;
 
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.CONFLICT;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -27,6 +28,7 @@ import java.io.IOException;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -79,10 +81,9 @@ public class VerifyController {
         verifyService.verifyUpdate(id, input);
     }
 
-    @ResponseStatus(value = INTERNAL_SERVER_ERROR)
-    @ExceptionHandler(IOException.class)
-    public String handleInternalServiceError(IOException e) {
-        log.error(e.getMessage(), e);
+    @ResponseStatus(value = BAD_REQUEST)
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public String handleBadRequest(HttpMessageNotReadableException e) {
         return e.getMessage();
     }
 
@@ -95,6 +96,13 @@ public class VerifyController {
     @ResponseStatus(value = NOT_FOUND)
     @ExceptionHandler(NoSuchKeyException.class)
     public String handleNotFound(NoSuchKeyException e) {
+        return e.getMessage();
+    }
+
+    @ResponseStatus(value = INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(Exception.class)
+    public String handleInternalServiceError(Exception e) {
+        log.error(e.getMessage(), e);
         return e.getMessage();
     }
 
