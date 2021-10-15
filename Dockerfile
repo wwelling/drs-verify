@@ -18,8 +18,9 @@ ARG APP_ID_NAME=drsadm
 ARG GROUP_ID_NUMBER=199
 ARG GROUP_ID_NAME=appadmin
 
-RUN groupadd -g ${GROUP_ID_NUMBER} ${GROUP_ID_NAME}
-RUN useradd -u ${APP_ID_NUMBER} -g ${GROUP_ID_NUMBER} -s /bin/bash ${APP_ID_NAME}
+RUN groupadd -g ${GROUP_ID_NUMBER} ${GROUP_ID_NAME} && \
+  useradd -u ${APP_ID_NUMBER} -g ${GROUP_ID_NUMBER} -s /bin/bash ${APP_ID_NAME} && \
+  apk --no-cache add curl
 
 USER ${APP_ID_NAME}
 

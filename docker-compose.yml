@@ -2,11 +2,6 @@ version: '3.8'
 
 services:
   service:
+    image: registry.lts.harvard.edu/lts/drs_verify:${TAG}
     build:
       context: .
-    env_file: .env
-    ports:
-      - 9000:9000
-    volumes:
-      - ./logs:/logs
-      - ./external:/external
