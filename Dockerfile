@@ -20,7 +20,8 @@ ARG GROUP_ID_NAME=appadmin
 
 RUN groupadd -g ${GROUP_ID_NUMBER} ${GROUP_ID_NAME} && \
   useradd -u ${APP_ID_NUMBER} -g ${GROUP_ID_NUMBER} -s /bin/bash ${APP_ID_NAME} && \
-  apk --no-cache add curl
+  apt-get update && \
+  apt-get install -y curl
 
 USER ${APP_ID_NAME}
 

@@ -77,17 +77,17 @@ docker run -v /external:/external -v /logs:/logs --env-file=.env drs-verify
 
 Build image for local use
 ```
-docker-compose -f docker-compose.yml build --no-cache
+docker-compose -f docker-compose-local.yml build --no-cache
 ```
 
 Build image for repository
 ```
-docker-compose -f docker-compose.build.yml build --no-cache
+docker-compose -f docker-compose.yml build --no-cache
 ```
 
-Run
+Run locally
 ```
-docker-compose -f docker-compose.yml up
+docker-compose -f docker-compose-local.yml up
 ```
 
 > If using docker, do not forget to copy `.env.example` to `.env` and update accordingly.
