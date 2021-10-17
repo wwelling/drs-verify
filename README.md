@@ -27,7 +27,6 @@ Here are some of the environment variables that can be set. See [application.yml
 | LOGGING_LEVEL_WEB                 | we log level                               | INFO                                |
 | SERVER_PORT                       | port service listening on                  | 9000                                |
 | SPRING_PROFILES_ACTIVE            | active profile                             | development                         |
-| EXTERNAL_STAGING_PATH             | external storage path                      | external                            |
 | AWS_BUCKET_NAME                   | AWS S3 bucket name                         | drs-preservation                    |
 | AWS_REGION                        | AWS region                                 | us-east-1                           |
 | AWS_ACCESS_KEY_ID                 | AWS access key id                          | foo                                 |
@@ -70,7 +69,7 @@ docker build --no-cache -t drs-verify .
 
 Run
 ```
-docker run -v /external:/external -v /logs:/logs --env-file=.env drs-verify
+docker run -v /logs:/logs --env-file=.env drs-verify
 ```
 
 ## Docker Compose

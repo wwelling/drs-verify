@@ -21,31 +21,26 @@ import static java.lang.String.valueOf;
 import static org.apache.commons.lang3.StringUtils.removeEnd;
 import static org.apache.commons.lang3.StringUtils.removeStart;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.harvard.drs.verify.config.AwsConfig;
 import edu.harvard.drs.verify.dto.OcflInventory;
 import edu.harvard.drs.verify.dto.VerificationError;
 import edu.harvard.drs.verify.exception.VerificationException;
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.RequestScope;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.awscore.exception.AwsServiceException;
 import software.amazon.awssdk.core.exception.SdkClientException;
+import software.amazon.awssdk.core.sync.ResponseTransformer;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.S3ClientBuilder;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
@@ -69,11 +64,6 @@ public class VerifyService {
 
     private final ObjectMapper om;
 
-    private final Long timestamp;
-
-    @Value("${external.staging.path:external}")
-    private String externalStagingPath;
-
     /**
      * Construct verify service.
      */
@@ -96,7 +86,6 @@ public class VerifyService {
         this.bucket = awsConfig.getBucketName();
         this.s3 = builder.build();
         this.om = new ObjectMapper();
-        this.timestamp = System.nanoTime();
     }
 
     /**
@@ -209,52 +198,19 @@ public class VerifyService {
 
     }
 
-    OcflInventory getInventory(Long id) throws IOException {
+    OcflInventory getInventory(Long id) throws NoSuchKeyException, InvalidObjectStateException,
+        AwsServiceException, SdkClientException, S3Exception, IOException {
+
         String key = format("%s/inventory.json", valueOf(id));
-
-        Path path = Paths.get(
-            externalStagingPath,
-            valueOf(timestamp),
-            valueOf(id),
-            "inventory.json"
-        );
-
-        setupStagingDirectory(path);
-        downloadObject(key, path);
-
-        OcflInventory inventory = readInventoryFile(path);
-
-        cleanupStagingDirectory(path);
-
-        return inventory;
-    }
-
-    void setupStagingDirectory(Path path) throws IOException {
-        File file = path.toFile();
-        File directory = file.getParentFile();
-
-        if (!directory.mkdirs()) {
-            throw new IOException(format("Failed to create staging directory %s", directory.getPath()));
-        }
-    }
-
-    void downloadObject(String key, Path path)
-        throws NoSuchKeyException, InvalidObjectStateException, AwsServiceException, SdkClientException, S3Exception {
 
         GetObjectRequest request = GetObjectRequest.builder()
             .bucket(bucket)
             .key(key)
             .build();
 
-        this.s3.getObject(request, path);
-    }
-
-    OcflInventory readInventoryFile(Path path) throws JsonParseException, JsonMappingException, IOException {
-        return this.om.readValue(path.toFile(), OcflInventory.class);
-    }
-
-    void cleanupStagingDirectory(Path path) throws IOException {
-        FileUtils.deleteDirectory(path.toFile().getParentFile().getParentFile());
+        try (InputStream is = this.s3.getObject(request, ResponseTransformer.toInputStream())) {
+            return this.om.readValue(is, OcflInventory.class);
+        }
     }
 
     HeadObjectResponse getHeadObject(String key) {

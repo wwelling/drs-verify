@@ -16,7 +16,6 @@
 
 package edu.harvard.drs.verify.service;
 
-import static java.lang.String.format;
 import static java.lang.String.valueOf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -215,71 +214,6 @@ public class VerifyServiceTest {
         OcflInventory inventory = verifyService.getInventory(id);
 
         assertInventory(inventory);
-    }
-
-    @Test
-    public void testSetupStagingDirectory() throws IOException {
-        Path path = Path.of("target/inventory/1254624/inventory.json");
-
-        verifyService.setupStagingDirectory(path);
-
-        assertTrue(path.getParent().toFile().exists());
-
-        verifyService.cleanupStagingDirectory(path);
-    }
-
-    @Test
-    public void testSetupStagingDirectoryFailure() throws IOException {
-        Path path = Path.of("target/inventory/1254624/inventory.json");
-
-        verifyService.setupStagingDirectory(path);
-
-        IOException exception = assertThrows(IOException.class, () -> {
-            verifyService.setupStagingDirectory(path);
-        });
-
-        String expected = format(
-            "Failed to create staging directory %s",
-            path.toFile().getParentFile().getPath()
-        );
-
-        assertEquals(expected, exception.getMessage());
-
-        verifyService.cleanupStagingDirectory(path);
-    }
-
-    @Test
-    public void testDownloadObject() throws IOException {
-        String key = "1254624/inventory.json";
-        Path path = Path.of("target/inventory", key);
-
-        verifyService.setupStagingDirectory(path);
-
-        verifyService.downloadObject(key, path);
-
-        assertTrue(path.toFile().exists());
-
-        verifyService.cleanupStagingDirectory(path);
-    }
-
-    @Test
-    public void testReadInventoryFile() throws IOException {
-        Path path = Path.of("src/test/resources/inventory/1254624/inventory.json");
-
-        OcflInventory inventory = verifyService.readInventoryFile(path);
-
-        assertInventory(inventory);
-    }
-
-    @Test
-    public void testCleanupStagingDirectory() throws IOException {
-        Path path = Path.of("target/inventory/1254624/inventory.json");
-
-        verifyService.setupStagingDirectory(path);
-
-        verifyService.cleanupStagingDirectory(path);
-
-        assertFalse(path.getParent().toFile().exists());
     }
 
     @Test
