@@ -9,4 +9,3 @@ services:
       - 9000:9000
     volumes:
       - ./logs:/logs
-      - ./external:/external

@@ -9,7 +9,7 @@
 
   <name>edu.harvard.drs:verify</name>
   <description>DRS Ingest Verification Service</description>
-  <url></url>
+  <url>https://github.com/harvard-lts/drs-verify</url>
 
   <parent>
     <groupId>org.springframework.boot</groupId>
