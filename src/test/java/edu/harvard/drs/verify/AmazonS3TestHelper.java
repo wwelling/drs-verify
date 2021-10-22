@@ -181,7 +181,7 @@ public final class AmazonS3TestHelper {
         for (File inventoryRoot : path.toFile().listFiles(File::isDirectory)) {
             String id = inventoryRoot.getName();
 
-            String inventoryKey = KeyUtility.buildKey(id, "inventory.json");
+            String inventoryKey = KeyUtility.buildKey(Long.valueOf(id), "inventory.json");
 
             File inventoryFile = path.resolve(format("%s/inventory.json", id)).toFile();
 
@@ -194,7 +194,7 @@ public final class AmazonS3TestHelper {
                 .parallelStream()
                 .forEach(manifest -> {
                     for (String manifestEntry : manifest.getValue()) {
-                        String key = KeyUtility.buildKey(id, manifestEntry);
+                        String key = KeyUtility.buildKey(Long.valueOf(id), manifestEntry);
 
                         File file = path.resolve(format("%s/%s", id, manifestEntry)).toFile();
 

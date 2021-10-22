@@ -1,6 +1,7 @@
 package edu.harvard.drs.verify.utility;
 
 import static java.lang.String.format;
+import static java.lang.String.valueOf;
 import static org.apache.commons.lang3.StringUtils.leftPad;
 import static org.apache.commons.lang3.StringUtils.reverse;
 
@@ -21,8 +22,8 @@ public final class KeyUtility {
      * @param path remaining path
      * @return full s3 key
      */
-    public static String buildKey(String id, String path) {
-        String reversedNss = reverse(leftPad(id, 8, "0"));
+    public static String buildKey(Long id, String path) {
+        String reversedNss = reverse(leftPad(valueOf(id), 8, "0"));
 
         return format(
             "%s/%s/%s/%s",

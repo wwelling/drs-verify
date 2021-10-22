@@ -111,7 +111,7 @@ public class VerifyService {
             .parallelStream()
             .forEach(manifest -> {
                 for (String manifestEntry : manifest.getValue()) {
-                    String key = buildKey(valueOf(id), manifestEntry);
+                    String key = buildKey(id, manifestEntry);
 
                     try {
                         HeadObjectResponse response = getHeadObject(key);
@@ -173,7 +173,7 @@ public class VerifyService {
         input.entrySet()
             .parallelStream()
             .forEach(entry -> {
-                String key = buildKey(valueOf(id), entry.getKey());
+                String key = buildKey(id, entry.getKey());
 
                 if (inventory.contains(entry.getKey())) {
                     String expected = entry.getValue();
@@ -211,7 +211,7 @@ public class VerifyService {
     OcflInventory getInventory(Long id) throws NoSuchKeyException, InvalidObjectStateException,
         AwsServiceException, SdkClientException, S3Exception, IOException {
 
-        String key = buildKey(valueOf(id), "inventory.json");
+        String key = buildKey(id, "inventory.json");
 
         GetObjectRequest request = GetObjectRequest.builder()
             .bucket(bucket)
