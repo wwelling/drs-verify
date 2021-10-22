@@ -110,8 +110,8 @@ public class VerifyServiceTest {
                 put("v00001/content/data/9991231.pdf", "32723094875a987b9797dd987ea979712");
             }
         };
-        
-        AmazonS3TestHelper.deleteObject(s3, "1254624/v00001/content/data/400000254.txt");
+
+        AmazonS3TestHelper.deleteObject(s3, "4264/5210/1254624/v00001/content/data/400000254.txt");
 
         VerificationException exception = assertThrows(VerificationException.class, () -> {
             verifyService.verifyIngest(id, input);
@@ -144,7 +144,7 @@ public class VerifyServiceTest {
             "v00001/content/data/400000254.txt"
         );
 
-        AmazonS3TestHelper.putObject(s3, "1254624/v00001/content/data/400000254.txt", path.toFile());
+        AmazonS3TestHelper.putObject(s3, "4264/5210/1254624/v00001/content/data/400000254.txt", path.toFile());
     }
 
     @Test
@@ -167,7 +167,7 @@ public class VerifyServiceTest {
     public void testVerifyUpdateValidationFailed(final S3Client s3) throws IOException, VerificationException {
         Long id = 1254624L;
 
-        AmazonS3TestHelper.deleteObject(s3, "1254624/v00001/content/metadata/400000252_structureMap.xml");
+        AmazonS3TestHelper.deleteObject(s3, "4264/5210/1254624/v00001/content/metadata/400000252_structureMap.xml");
 
         Map<String, String> input = new HashMap<>() {
             {
@@ -204,7 +204,11 @@ public class VerifyServiceTest {
             "v00001/content/metadata/400000252_structureMap.xml"
         );
 
-        AmazonS3TestHelper.putObject(s3, "1254624/v00001/content/metadata/400000252_structureMap.xml", path.toFile());
+        AmazonS3TestHelper.putObject(
+            s3,
+            "4264/5210/1254624/v00001/content/metadata/400000252_structureMap.xml",
+            path.toFile()
+        );
     }
 
     @Test
@@ -218,7 +222,9 @@ public class VerifyServiceTest {
 
     @Test
     public void testGetHeadObject() {
-        HeadObjectResponse response = verifyService.getHeadObject("1254624/v00001/content/data/400000254.txt");
+        HeadObjectResponse response = verifyService.getHeadObject(
+            "4264/5210/1254624/v00001/content/data/400000254.txt"
+        );
 
         assertEquals("text/plain", response.contentType());
         assertEquals(611864L, response.contentLength());
