@@ -16,6 +16,7 @@
 
 package edu.harvard.drs.verify.service;
 
+import static edu.harvard.drs.verify.utility.KeyUtility.buildKey;
 import static java.lang.String.format;
 import static java.lang.String.valueOf;
 import static org.apache.commons.lang3.StringUtils.removeEnd;
@@ -90,8 +91,12 @@ public class VerifyService {
 
     /**
      * Verify ingest.
+     *
+     * @param id    object id
+     * @param input expected checksum map
+     * @throws IOException failed to get inventory
+     * @throws VerificationException failed verification
      */
-
     public void verifyIngest(Long id, Map<String, String> input) throws IOException, VerificationException {
         log.info("Veryfing ingest object {}", id);
 
@@ -106,7 +111,7 @@ public class VerifyService {
             .parallelStream()
             .forEach(manifest -> {
                 for (String manifestEntry : manifest.getValue()) {
-                    String key = format("%s/%s", valueOf(id), manifestEntry);
+                    String key = buildKey(id, manifestEntry);
 
                     try {
                         HeadObjectResponse response = getHeadObject(key);
@@ -152,6 +157,11 @@ public class VerifyService {
 
     /**
      * Verify update.
+     *
+     * @param id    object id
+     * @param input expected checksum map
+     * @throws IOException failed to get inventory
+     * @throws VerificationException failed verification
      */
     public void verifyUpdate(Long id, Map<String, String> input) throws IOException, VerificationException {
         log.info("Veryfing update object {}", id);
@@ -163,7 +173,7 @@ public class VerifyService {
         input.entrySet()
             .parallelStream()
             .forEach(entry -> {
-                String key = format("%s/%s", valueOf(id), entry.getKey());
+                String key = buildKey(id, entry.getKey());
 
                 if (inventory.contains(entry.getKey())) {
                     String expected = entry.getValue();
@@ -201,7 +211,7 @@ public class VerifyService {
     OcflInventory getInventory(Long id) throws NoSuchKeyException, InvalidObjectStateException,
         AwsServiceException, SdkClientException, S3Exception, IOException {
 
-        String key = format("%s/inventory.json", valueOf(id));
+        String key = buildKey(id, "inventory.json");
 
         GetObjectRequest request = GetObjectRequest.builder()
             .bucket(bucket)

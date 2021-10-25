@@ -27,6 +27,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.harvard.drs.verify.dto.OcflInventory;
+import edu.harvard.drs.verify.utility.KeyUtility;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -180,9 +181,9 @@ public final class AmazonS3TestHelper {
         for (File inventoryRoot : path.toFile().listFiles(File::isDirectory)) {
             String id = inventoryRoot.getName();
 
-            String inventoryKey = format("%s/inventory.json", id);
+            String inventoryKey = KeyUtility.buildKey(Long.valueOf(id), "inventory.json");
 
-            File inventoryFile = path.resolve(inventoryKey).toFile();
+            File inventoryFile = path.resolve(format("%s/inventory.json", id)).toFile();
 
             putObject(s3, inventoryKey, inventoryFile);
 
@@ -193,15 +194,13 @@ public final class AmazonS3TestHelper {
                 .parallelStream()
                 .forEach(manifest -> {
                     for (String manifestEntry : manifest.getValue()) {
-                        String key = format("%s/%s", id, manifestEntry);
+                        String key = KeyUtility.buildKey(Long.valueOf(id), manifestEntry);
 
-                        File file = path.resolve(key).toFile();
+                        File file = path.resolve(format("%s/%s", id, manifestEntry)).toFile();
 
                         putObject(s3, key, file);
                     }
-
                 });
-
         }
     }
 
