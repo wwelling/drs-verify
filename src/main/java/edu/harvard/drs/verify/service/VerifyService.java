@@ -18,7 +18,6 @@ package edu.harvard.drs.verify.service;
 
 import static edu.harvard.drs.verify.utility.KeyUtility.buildKey;
 import static java.lang.String.format;
-import static java.lang.String.valueOf;
 import static org.apache.commons.lang3.StringUtils.removeEnd;
 import static org.apache.commons.lang3.StringUtils.removeStart;
 
