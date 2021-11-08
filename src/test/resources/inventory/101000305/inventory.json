@@ -1,0 +1,85 @@
+{
+  "id" : "URN-3:HUL.DRS.OBJECT:101000305",
+  "type" : "https://ocfl.io/1.0/spec/#inventory",
+  "digestAlgorithm" : "sha512",
+  "head" : "v00004",
+  "contentDirectory" : "content",
+  "fixity" : { },
+  "manifest" : {
+    "2ab46874a9030e55ebc23a7e8fdebdffa25cef1ce23cc417aea7e1e53001311e77a26c4c11c021514d32a00c47546ce7be09f906de997808bff7950a2b744da9" : [ "v00001/content/metadata/400018807_textMD.xml" ],
+    "2daf8d458f9cba6fcf46daad06d1d9127e0397cd8773aac021b5da50beb219c579972cccdc0a6f2e203833fa8778740d0a671ef637b0bd1b37ed9c8f9f2b492d" : [ "v00001/content/data/400018806.jp2" ],
+    "3f86fcda2b23ac0a15b57279a36c0ff185176b3873d67e2e81afe5c559c748f28795237eaa721a52122c44b23af09e6203ffca27362570a1e351d372f4e2faf5" : [ "v00002/content/descriptor/400018804_mets.xml" ],
+    "4c4e58c54b8fa8a67e2257a7d5e4000fddd9b24ce3b5eb9c5cdb8a51c13bb9cdab7d489996f48a71c088609b2ce0fba18af4815a2e7838f8d4acf1cdb1612122" : [ "v00001/content/metadata/400018804_structureMap.xml" ],
+    "65494940aebd7d6dab17d3ada273e83e8878bf3403e1b92249a565161139764d1f98ede1b55a4ab140e49bf99518e42b1ee3c9752a32e3dd1b84e2da60c9bd72" : [ "v00004/content/descriptor/400018804_mets.xml" ],
+    "bc6717bc037fb954df066299f73adb56096d308f67158b31bc43983b0f4231e40cf5e571f639738f4e2c332b6306e3a97455942ebcce0bf2459a8739eb3df08e" : [ "v00003/content/descriptor/400018804_mets.xml" ],
+    "c0ccda2feb51af4dfabba25fcd4828dd7e16ca2ad4f8dc64bd30207cc955015d81b8a0bf9873faa2a7418fa89e9348bc4a38ff419ae0ca546fadcb1764447582" : [ "v00001/content/data/400018807.xml" ],
+    "c91bb2f4ab2f59c607fa9e0b99f793e16cc881c04f22ef37d8406b4f0b50f58abbe85c033877dfb70f60259d49ffd60f3d1c4254c400d90a8516e85e8d95002e" : [ "v00001/content/descriptor/400018804_mets.xml" ],
+    "ea10c5ce2aea498f1db6878cb99653e963bfe0a010f9570c993bd70b6b64e07e4531d7c30466dfdbe7e6c9c0cb8b3133b8116458e43935ee73822c01bf3768c2" : [ "v00001/content/metadata/400018806_mix.xml" ]
+  },
+  "versions" : {
+    "v00001" : {
+      "created" : "2021-10-20T02:45:19.597393Z",
+      "message" : "PREMIS:refreshment",
+      "user" : {
+        "name" : "DRS Migrator/2.0.1",
+        "address" : "http://idtest.lib.harvard.edu:10020/wordshack/software/26906"
+      },
+      "state" : {
+        "2ab46874a9030e55ebc23a7e8fdebdffa25cef1ce23cc417aea7e1e53001311e77a26c4c11c021514d32a00c47546ce7be09f906de997808bff7950a2b744da9" : [ "metadata/400018807_textMD.xml" ],
+        "2daf8d458f9cba6fcf46daad06d1d9127e0397cd8773aac021b5da50beb219c579972cccdc0a6f2e203833fa8778740d0a671ef637b0bd1b37ed9c8f9f2b492d" : [ "data/400018806.jp2" ],
+        "4c4e58c54b8fa8a67e2257a7d5e4000fddd9b24ce3b5eb9c5cdb8a51c13bb9cdab7d489996f48a71c088609b2ce0fba18af4815a2e7838f8d4acf1cdb1612122" : [ "metadata/400018804_structureMap.xml" ],
+        "c0ccda2feb51af4dfabba25fcd4828dd7e16ca2ad4f8dc64bd30207cc955015d81b8a0bf9873faa2a7418fa89e9348bc4a38ff419ae0ca546fadcb1764447582" : [ "data/400018807.xml" ],
+        "c91bb2f4ab2f59c607fa9e0b99f793e16cc881c04f22ef37d8406b4f0b50f58abbe85c033877dfb70f60259d49ffd60f3d1c4254c400d90a8516e85e8d95002e" : [ "descriptor/400018804_mets.xml" ],
+        "ea10c5ce2aea498f1db6878cb99653e963bfe0a010f9570c993bd70b6b64e07e4531d7c30466dfdbe7e6c9c0cb8b3133b8116458e43935ee73822c01bf3768c2" : [ "metadata/400018806_mix.xml" ]
+      }
+    },
+    "v00002" : {
+      "created" : "2021-10-21T18:50:08.010715Z",
+      "message" : "PREMIS:metadata modification",
+      "user" : {
+        "name" : "DRS2 Services/latest",
+        "address" : "http://idtest.lib.harvard.edu:10020/wordshack/software/26986"
+      },
+      "state" : {
+        "2ab46874a9030e55ebc23a7e8fdebdffa25cef1ce23cc417aea7e1e53001311e77a26c4c11c021514d32a00c47546ce7be09f906de997808bff7950a2b744da9" : [ "metadata/400018807_textMD.xml" ],
+        "2daf8d458f9cba6fcf46daad06d1d9127e0397cd8773aac021b5da50beb219c579972cccdc0a6f2e203833fa8778740d0a671ef637b0bd1b37ed9c8f9f2b492d" : [ "data/400018806.jp2" ],
+        "3f86fcda2b23ac0a15b57279a36c0ff185176b3873d67e2e81afe5c559c748f28795237eaa721a52122c44b23af09e6203ffca27362570a1e351d372f4e2faf5" : [ "descriptor/400018804_mets.xml" ],
+        "4c4e58c54b8fa8a67e2257a7d5e4000fddd9b24ce3b5eb9c5cdb8a51c13bb9cdab7d489996f48a71c088609b2ce0fba18af4815a2e7838f8d4acf1cdb1612122" : [ "metadata/400018804_structureMap.xml" ],
+        "c0ccda2feb51af4dfabba25fcd4828dd7e16ca2ad4f8dc64bd30207cc955015d81b8a0bf9873faa2a7418fa89e9348bc4a38ff419ae0ca546fadcb1764447582" : [ "data/400018807.xml" ],
+        "ea10c5ce2aea498f1db6878cb99653e963bfe0a010f9570c993bd70b6b64e07e4531d7c30466dfdbe7e6c9c0cb8b3133b8116458e43935ee73822c01bf3768c2" : [ "metadata/400018806_mix.xml" ]
+      }
+    },
+    "v00003" : {
+      "created" : "2021-10-22T13:50:52.911295Z",
+      "message" : "PREMIS:metadata modification",
+      "user" : {
+        "name" : "DRS2 Services/latest",
+        "address" : "http://idtest.lib.harvard.edu:10020/wordshack/software/26986"
+      },
+      "state" : {
+        "2ab46874a9030e55ebc23a7e8fdebdffa25cef1ce23cc417aea7e1e53001311e77a26c4c11c021514d32a00c47546ce7be09f906de997808bff7950a2b744da9" : [ "metadata/400018807_textMD.xml" ],
+        "2daf8d458f9cba6fcf46daad06d1d9127e0397cd8773aac021b5da50beb219c579972cccdc0a6f2e203833fa8778740d0a671ef637b0bd1b37ed9c8f9f2b492d" : [ "data/400018806.jp2" ],
+        "4c4e58c54b8fa8a67e2257a7d5e4000fddd9b24ce3b5eb9c5cdb8a51c13bb9cdab7d489996f48a71c088609b2ce0fba18af4815a2e7838f8d4acf1cdb1612122" : [ "metadata/400018804_structureMap.xml" ],
+        "bc6717bc037fb954df066299f73adb56096d308f67158b31bc43983b0f4231e40cf5e571f639738f4e2c332b6306e3a97455942ebcce0bf2459a8739eb3df08e" : [ "descriptor/400018804_mets.xml" ],
+        "c0ccda2feb51af4dfabba25fcd4828dd7e16ca2ad4f8dc64bd30207cc955015d81b8a0bf9873faa2a7418fa89e9348bc4a38ff419ae0ca546fadcb1764447582" : [ "data/400018807.xml" ],
+        "ea10c5ce2aea498f1db6878cb99653e963bfe0a010f9570c993bd70b6b64e07e4531d7c30466dfdbe7e6c9c0cb8b3133b8116458e43935ee73822c01bf3768c2" : [ "metadata/400018806_mix.xml" ]
+      }
+    },
+    "v00004" : {
+      "created" : "2021-10-25T21:00:07.88546Z",
+      "message" : "PREMIS:metadata modification",
+      "user" : {
+        "name" : "DRS2 Services/latest",
+        "address" : "http://idtest.lib.harvard.edu:10020/wordshack/software/26986"
+      },
+      "state" : {
+        "2ab46874a9030e55ebc23a7e8fdebdffa25cef1ce23cc417aea7e1e53001311e77a26c4c11c021514d32a00c47546ce7be09f906de997808bff7950a2b744da9" : [ "metadata/400018807_textMD.xml" ],
+        "2daf8d458f9cba6fcf46daad06d1d9127e0397cd8773aac021b5da50beb219c579972cccdc0a6f2e203833fa8778740d0a671ef637b0bd1b37ed9c8f9f2b492d" : [ "data/400018806.jp2" ],
+        "4c4e58c54b8fa8a67e2257a7d5e4000fddd9b24ce3b5eb9c5cdb8a51c13bb9cdab7d489996f48a71c088609b2ce0fba18af4815a2e7838f8d4acf1cdb1612122" : [ "metadata/400018804_structureMap.xml" ],
+        "65494940aebd7d6dab17d3ada273e83e8878bf3403e1b92249a565161139764d1f98ede1b55a4ab140e49bf99518e42b1ee3c9752a32e3dd1b84e2da60c9bd72" : [ "descriptor/400018804_mets.xml" ],
+        "c0ccda2feb51af4dfabba25fcd4828dd7e16ca2ad4f8dc64bd30207cc955015d81b8a0bf9873faa2a7418fa89e9348bc4a38ff419ae0ca546fadcb1764447582" : [ "data/400018807.xml" ],
+        "ea10c5ce2aea498f1db6878cb99653e963bfe0a010f9570c993bd70b6b64e07e4531d7c30466dfdbe7e6c9c0cb8b3133b8116458e43935ee73822c01bf3768c2" : [ "metadata/400018806_mix.xml" ]
+      }
+    }
+  }
+}
