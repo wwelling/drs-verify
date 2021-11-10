@@ -16,11 +16,15 @@
 
 package edu.harvard.drs.verify.dto;
 
-import java.util.Collection;
+import static java.lang.String.format;
+
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 import lombok.Data;
 
 /**
@@ -34,20 +38,63 @@ public class OcflInventory {
     private String head;
     private String contentDirectory;
     private Map<String, Map<String, List<String>>> fixity = new HashMap<>();
-    private Map<String, List<String>> manifest = new HashMap<>();
+    private ConcurrentHashMap<String, List<String>> manifest = new ConcurrentHashMap<>();
     private Map<String, OcflVersion> versions = new HashMap<>();
 
+    public OcflInventory withManifest(ConcurrentHashMap<String, List<String>> manifest) {
+        this.manifest = manifest;
+        return this;
+    }
+
     /**
-     * Find key in manifest ending in reduced key.
+     * Find key in manifest ending in reduced key removing if found.
      *
      * @param reducedKey reduced key
      * @return key in manifest
      */
     public Optional<String> find(String reducedKey) {
-        return manifest.values()
+        Optional<VersionEntry> versionEntry = manifest.entrySet()
             .parallelStream()
-            .flatMap(Collection::stream)
-            .filter(entry -> entry.endsWith(reducedKey))
-            .findFirst();
+            .filter(entry -> entry.getValue()
+                .stream()
+                .anyMatch(value -> value.endsWith(reducedKey)))
+            .findFirst()
+            .map(entry -> VersionEntry.builder()
+                .sha512Key(entry.getKey())
+                .values(entry.getValue())
+                .version(head)
+                .build());
+
+        if (!versionEntry.isPresent()) {
+            versionEntry = derefernece(reducedKey);
+        }
+
+        if (versionEntry.isPresent()) {
+            manifest.remove(versionEntry.get().getSha512Key());
+        }
+
+        return versionEntry.map(entry -> entry.getFirstValue());
+    }
+
+    private Optional<VersionEntry> derefernece(String reducedKey) {
+        return versions.entrySet()
+            .parallelStream()
+            .sorted(Map.Entry.comparingByKey(Comparator.reverseOrder())) 
+            .map(version -> version.getValue()
+                .find(reducedKey)
+                .map(entry -> VersionEntry.builder()
+                    .sha512Key(entry.getKey())
+                    .values(entry.getValue())
+                    .version(version.getKey())
+                    .build()))
+            .filter(entry -> entry.isPresent())
+            .map(entry -> entry.get())
+            .findFirst()
+            .map(entry ->  entry.withValues(
+                entry.getValues()
+                    .stream()
+                    .map(value -> format("%s/%s/%s", entry.getVersion(), contentDirectory, value))
+                    .collect(Collectors.toList())
+            ));
     }
 }

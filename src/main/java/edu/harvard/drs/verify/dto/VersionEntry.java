@@ -16,34 +16,26 @@
 
 package edu.harvard.drs.verify.dto;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import lombok.Builder;
 import lombok.Data;
 
 /**
- * OCFL version.
+ * OCFL Version entry.
  */
 @Data
-public class OcflVersion {
-    private String created;
-    private String message;
-    private OcflUser user;
-    private Map<String, List<String>> state = new HashMap<>();
+@Builder
+public class VersionEntry {
+    private String version;
+    private String sha512Key;
+    private List<String> values;
 
-    /**
-     * Find version entry in state matching reduced key.
-     *
-     * @param reducedKey reduced key
-     * @return version entry in state
-     */
-    public Optional<Map.Entry<String, List<String>>> find(String reducedKey) {
-        return state.entrySet()
-            .parallelStream()
-            .filter(entry -> entry.getValue()
-                .stream()
-                .anyMatch(value -> reducedKey.equals(value)))
-            .findFirst();
+    public String getFirstValue() {
+        return !values.isEmpty() ? values.get(0) : null;
+    }
+
+    public VersionEntry withValues(List<String> values) {
+        this.values = values;
+        return this;
     }
 }
