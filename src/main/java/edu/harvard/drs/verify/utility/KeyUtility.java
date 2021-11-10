@@ -50,4 +50,15 @@ public final class KeyUtility {
         );
     }
 
+    /**
+     * Reduce key to everything after content directory.
+     *
+     * @param contentDirectory content directory
+     * @param key              key
+     * @return reduced key
+     */
+    public static String reduceKey(String contentDirectory, String key) {
+        return key.substring(key.indexOf(contentDirectory) + contentDirectory.length() + 1);
+    }
+
 }

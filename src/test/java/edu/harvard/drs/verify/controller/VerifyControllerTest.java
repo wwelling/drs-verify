@@ -54,7 +54,7 @@ public class VerifyControllerTest {
         AmazonS3TestHelper.setup(s3);
     }
 
-    @AfterAll
+    @AfterAll 
     public void cleanup(final S3Client s3) {
         AmazonS3TestHelper.cleanup(s3);
     }
@@ -62,11 +62,11 @@ public class VerifyControllerTest {
     @Test
     public void shouldVerify() throws Exception {
         String content = "{"
-            + "\"v00001/content/descriptor/400016240_mets.xml\": \"88004448277e0ca3229808bd8fa40327\","
-            + "\"v00001/content/data/400016242.doc\": \"f9f645a42c784c2b3d2fe93ccbaf1992\","
-            + "\"v00001/content/metadata/400016242_documentMD.xml\": \"68322df10a439fc9b03bb6e69c72749f\","
-            + "\"v00001/content/metadata/400016240_structureMap.xml\": \"06328e877392db47a2b59bfa9614470c\","
-            + "\"v00001/content/metadata/400016240_mods.xml\": \"2cffede56db677e4924b24622374ac3b\""
+            + "\"descriptor/400016240_mets.xml\": \"88004448277e0ca3229808bd8fa40327\","
+            + "\"data/400016242.doc\": \"f9f645a42c784c2b3d2fe93ccbaf1992\","
+            + "\"metadata/400016242_documentMD.xml\": \"68322df10a439fc9b03bb6e69c72749f\","
+            + "\"metadata/400016240_structureMap.xml\": \"06328e877392db47a2b59bfa9614470c\","
+            + "\"metadata/400016240_mods.xml\": \"2cffede56db677e4924b24622374ac3b\""
             + "}";
         this.mockMvc.perform(post("/verify/100000020")
             .content(content)
@@ -78,11 +78,11 @@ public class VerifyControllerTest {
     @Test
     public void shouldVerifyBadRequestMalformed() throws Exception {
         String content = "{"
-            + "\"v00001/content/descriptor/400016240_mets.xml\": {"
-            + "\"v00001/content/data/400016242.doc\": \"f9f645a42c784c2b3d2fe93ccbaf1992\""
+            + "\"descriptor/400016240_mets.xml\": {"
+            + "\"data/400016242.doc\": \"f9f645a42c784c2b3d2fe93ccbaf1992\""
             + "}"
-            + "\"v00001/content/metadata/400016240_structureMap.xml\": \"06328e877392db47a2b59bfa9614470c\","
-            + "\"v00001/content/metadata/400016240_mods.xml\": \"2cffede56db677e4924b24622374ac3b\""
+            + "\"metadata/400016240_structureMap.xml\": \"06328e877392db47a2b59bfa9614470c\","
+            + "\"metadata/400016240_mods.xml\": \"2cffede56db677e4924b24622374ac3b\""
             + "}";
         this.mockMvc.perform(post("/verify/100000020")
             .content(content)
@@ -102,11 +102,11 @@ public class VerifyControllerTest {
     @Test
     public void shouldVerifyConflict() throws Exception {
         String content = "{"
-            + "\"v00001/content/descriptor/400016240_mets.xml\": \"88004448277e0ca3229808bd8fa403ab\","
-            + "\"v00001/content/data/400016242.doc\": \"f9f645a42c784c2b3d2fe93ccbaf1992\","
-            + "\"v00001/content/metadata/400016242_documentMD.xml\": \"68322df10a439fc9b03bb6e69c72749f\","
-            + "\"v00001/content/metadata/400016240_structureMap.xml\": \"06328e877392db47a2b59bfa9614470c\","
-            + "\"v00001/content/metadata/400016240_mods.xml\": \"2cffede56db677e4924b24622374ac3b\""
+            + "\"descriptor/400016240_mets.xml\": \"88004448277e0ca3229808bd8fa403ab\","
+            + "\"data/400016242.doc\": \"f9f645a42c784c2b3d2fe93ccbaf1992\","
+            + "\"metadata/400016242_documentMD.xml\": \"68322df10a439fc9b03bb6e69c72749f\","
+            + "\"metadata/400016240_structureMap.xml\": \"06328e877392db47a2b59bfa9614470c\","
+            + "\"metadata/400016240_mods.xml\": \"2cffede56db677e4924b24622374ac3b\""
             + "}";
         this.mockMvc.perform(post("/verify/100000020")
             .content(content)
@@ -128,9 +128,9 @@ public class VerifyControllerTest {
     @Test
     public void shouldVerifyUpdate() throws Exception {
         String content = "{"
-            + "\"v00001/content/descriptor/400016240_mets.xml\": \"88004448277e0ca3229808bd8fa40327\","
-            + "\"v00001/content/metadata/400016240_structureMap.xml\": \"06328e877392db47a2b59bfa9614470c\","
-            + "\"v00001/content/metadata/400016240_mods.xml\": \"2cffede56db677e4924b24622374ac3b\""
+            + "\"descriptor/400016240_mets.xml\": \"88004448277e0ca3229808bd8fa40327\","
+            + "\"metadata/400016240_structureMap.xml\": \"06328e877392db47a2b59bfa9614470c\","
+            + "\"metadata/400016240_mods.xml\": \"2cffede56db677e4924b24622374ac3b\""
             + "}";
         this.mockMvc.perform(post("/verify/100000020/update")
             .content(content)
@@ -142,8 +142,8 @@ public class VerifyControllerTest {
     @Test
     public void shouldVerifyUpdateBadRequestMalformed() throws Exception {
         String content = "{"
-            + "\"v00001/content/descriptor/400016240_mets.xml\": {"
-            + "\"v00001/content/data/400016242.doc\": \"f9f645a42c784c2b3d2fe93ccbaf1992\""
+            + "\"descriptor/400016240_mets.xml\": {"
+            + "\"data/400016242.doc\": \"f9f645a42c784c2b3d2fe93ccbaf1992\""
             + "}"
             + "}";
         this.mockMvc.perform(post("/verify/100000020/update")
@@ -164,9 +164,9 @@ public class VerifyControllerTest {
     @Test
     public void shouldVerifyUpdateConflict() throws Exception {
         String content = "{"
-            + "\"v00001/content/descriptor/400016240_mets.xml\": \"88004448277e0ca3229808bd8fa403ab\","
-            + "\"v00001/content/data/400016242.doc\": \"f9f645a42c784c2b3d2fe93ccbaf1992\","
-            + "\"v00001/content/metadata/400016240_mods.xml\": \"2cffede56db677e4924b24622374ac3b\""
+            + "\"descriptor/400016240_mets.xml\": \"88004448277e0ca3229808bd8fa403ab\","
+            + "\"data/400016242.doc\": \"f9f645a42c784c2b3d2fe93ccbaf1992\","
+            + "\"metadata/400016240_mods.xml\": \"2cffede56db677e4924b24622374ac3b\""
             + "}";
         this.mockMvc.perform(post("/verify/100000020/update")
             .content(content)

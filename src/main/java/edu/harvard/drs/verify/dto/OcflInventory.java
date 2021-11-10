@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import lombok.Data;
 
 /**
@@ -37,15 +38,16 @@ public class OcflInventory {
     private Map<String, OcflVersion> versions = new HashMap<>();
 
     /**
-     * Checks to see if key is in manifest.
+     * Find key in manifest ending in reduced key.
      *
-     * @param key object key
-     * @return whether key is in manifest
+     * @param reducedKey reduced key
+     * @return key in manifest
      */
-    public boolean contains(String key) {
+    public Optional<String> find(String reducedKey) {
         return manifest.values()
             .parallelStream()
             .flatMap(Collection::stream)
-            .anyMatch(entry -> key.equals(entry));
+            .filter(entry -> entry.endsWith(reducedKey))
+            .findFirst();
     }
 }

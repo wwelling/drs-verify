@@ -40,11 +40,11 @@ public class OcflInventoryTest {
         ).toFile();
         OcflInventory inventory = objectMapper.readValue(file, OcflInventory.class);
 
-        assertTrue(inventory.contains("v00001/content/metadata/400000252_structureMap.xml"));
-        assertTrue(inventory.contains("v00001/content/descriptor/400000252_mets.xml"));
-        assertTrue(inventory.contains("v00001/content/metadata/400000254_textMD.xml"));
-        assertTrue(inventory.contains("v00001/content/data/400000254.txt"));
-        assertFalse(inventory.contains("v00001/content/data/974358.pdf"));
+        assertTrue(inventory.find("metadata/400000252_structureMap.xml").isPresent());
+        assertTrue(inventory.find("descriptor/400000252_mets.xml").isPresent());
+        assertTrue(inventory.find("metadata/400000254_textMD.xml").isPresent());
+        assertTrue(inventory.find("data/400000254.txt").isPresent());
+        assertFalse(inventory.find("data/974358.pdf").isPresent());
     }
 
 }

@@ -17,6 +17,7 @@
 package edu.harvard.drs.verify.service;
 
 import static edu.harvard.drs.verify.utility.KeyUtility.buildKey;
+import static edu.harvard.drs.verify.utility.KeyUtility.reduceKey;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.removeEnd;
 import static org.apache.commons.lang3.StringUtils.removeStart;
@@ -29,7 +30,13 @@ import edu.harvard.drs.verify.exception.VerificationException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -101,6 +108,8 @@ public class VerifyService {
 
         OcflInventory inventory = getInventory(id);
 
+        String contentDirectory = inventory.getContentDirectory();
+
         Map<String, String> wrappedInput = new ConcurrentHashMap<>(input);
 
         Map<String, VerificationError> errors = new ConcurrentHashMap<>();
@@ -111,14 +120,15 @@ public class VerifyService {
             .forEach(manifest -> {
                 for (String manifestEntry : manifest.getValue()) {
                     String key = buildKey(id, manifestEntry);
+                    String reducedKey = reduceKey(contentDirectory, manifestEntry);
 
                     try {
                         HeadObjectResponse response = getHeadObject(key);
 
                         String actual = removeEnd(removeStart(response.eTag(), "\""), "\"");
 
-                        if (wrappedInput.containsKey(manifestEntry)) {
-                            String expected = wrappedInput.remove(manifestEntry);
+                        if (wrappedInput.containsKey(reducedKey)) {
+                            String expected = wrappedInput.remove(reducedKey);
 
                             if (!expected.equals(actual)) {
                                 VerificationError error = VerificationError.builder()
@@ -127,15 +137,15 @@ public class VerifyService {
                                     .actual(actual)
                                     .build();
 
-                                errors.put(manifestEntry, error);
+                                errors.put(reducedKey, error);
                             }
                         } else {
-                            errors.put(manifestEntry, VerificationError.from("Missing input checksum"));
+                            errors.put(reducedKey, VerificationError.from("Missing input checksum"));
                         }
 
                     } catch (Exception e) {
                         log.error(format("Failed to get head obect of manifest entry %s", key), e);
-                        errors.put(manifestEntry, VerificationError.from(e.getMessage()));
+                        errors.put(reducedKey, VerificationError.from(e.getMessage()));
                     }
                 }
             });
@@ -172,9 +182,11 @@ public class VerifyService {
         input.entrySet()
             .parallelStream()
             .forEach(entry -> {
-                String key = buildKey(id, entry.getKey());
+                String reducedKey = entry.getKey();
+                Optional<String> manifestKey = inventory.find(reducedKey);
+                if (manifestKey.isPresent()) {
+                    String key = buildKey(id, manifestKey.get());
 
-                if (inventory.contains(entry.getKey())) {
                     String expected = entry.getValue();
 
                     try {
@@ -189,15 +201,15 @@ public class VerifyService {
                                 .actual(actual)
                                 .build();
 
-                            errors.put(entry.getKey(), error);
+                            errors.put(reducedKey, error);
                         }
 
                     } catch (Exception e) {
                         log.error(format("Failed to get head obect of manifest entry %s", key), e);
-                        errors.put(entry.getKey(), VerificationError.from(e.getMessage()));
+                        errors.put(reducedKey, VerificationError.from(e.getMessage()));
                     }
                 } else {
-                    errors.put(entry.getKey(), VerificationError.from("Not found in inventory manifest"));
+                    errors.put(reducedKey, VerificationError.from("Not found in inventory manifest"));
                 }
             });
 
@@ -207,6 +219,18 @@ public class VerifyService {
 
     }
 
+    /**
+     * Fetch OCFL inventoy.json from S3 and serialize.
+     *
+     * @param id DRS id
+     * @return serialize OCFL inventory
+     * @throws NoSuchKeyException the specified key does not exist
+     * @throws InvalidObjectStateException object is archived and inaccessible until restored
+     * @throws AwsServiceException something went wrong with S3 request
+     * @throws SdkClientException something went wrong with S3 request
+     * @throws S3Exception something went wrong with S3 request
+     * @throws IOException something went wrong serializing OCFL inventory
+     */
     OcflInventory getInventory(Long id) throws NoSuchKeyException, InvalidObjectStateException,
         AwsServiceException, SdkClientException, S3Exception, IOException {
 
@@ -218,10 +242,50 @@ public class VerifyService {
             .build();
 
         try (InputStream is = this.s3.getObject(request, ResponseTransformer.toInputStream())) {
-            return this.om.readValue(is, OcflInventory.class);
+            OcflInventory inventory = this.om.readValue(is, OcflInventory.class);
+
+            return this.reduceManifest(inventory);
         }
     }
 
+    /**
+     * Reduce OCFL manifest map to only latest version.
+     *
+     * @param inventory entire OCFL manifest
+     * @return OCFL inventory with manifest map reduced to latest version only
+     */
+    OcflInventory reduceManifest(OcflInventory inventory) {
+        String contentDirectory = inventory.getContentDirectory();
+        Set<String> reducedKeys = new HashSet<>();
+        Map<String, List<String>> reducedManifest = new HashMap<>();
+
+        inventory.getManifest().entrySet()
+            .stream()
+            .sorted(Map.Entry.comparingByValue(new Comparator<List<String>>() {
+                @Override
+                public int compare(List<String> o1, List<String> o2) {
+                    return o2.get(0).compareTo(o1.get(0));
+                }
+            }))
+            .forEach(manifestEntry -> {
+                for (String key : manifestEntry.getValue()) {
+                    String reducedKey = reduceKey(contentDirectory, key);
+                    if (reducedKeys.add(reducedKey)) {
+                        reducedManifest.put(manifestEntry.getKey(), manifestEntry.getValue());
+                    }
+                }
+            });
+
+        inventory.setManifest(reducedManifest);
+        return inventory;
+    }
+
+    /**
+     * Request head object from S3 for given key.
+     *
+     * @param key S3 object key
+     * @return S3 head object response
+     */
     HeadObjectResponse getHeadObject(String key) {
         HeadObjectRequest request = HeadObjectRequest.builder()
             .bucket(bucket)
