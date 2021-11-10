@@ -17,7 +17,6 @@
 package edu.harvard.drs.verify.service;
 
 import static edu.harvard.drs.verify.utility.KeyUtility.buildKey;
-import static edu.harvard.drs.verify.utility.KeyUtility.reduceKey;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.removeEnd;
 import static org.apache.commons.lang3.StringUtils.removeStart;
@@ -172,8 +171,8 @@ public class VerifyService {
             }))
             .forEachOrdered(manifestEntry -> {
                 for (String key : manifestEntry.getValue()) {
-                    String reducedKey = reduceKey(contentDirectory, key);
-                    if (reducedKeys.add(reducedKey)) {
+                    String reducedPath = reducePath(contentDirectory, key);
+                    if (reducedKeys.add(reducedPath)) {
                         reducedManifest.put(manifestEntry.getKey(), manifestEntry.getValue());
                     }
                 }
@@ -211,8 +210,8 @@ public class VerifyService {
         input.entrySet()
             .parallelStream()
             .forEach(entry -> {
-                String reducedKey = entry.getKey();
-                Optional<String> manifestKey = inventory.find(reducedKey);
+                String reducedPath = entry.getKey();
+                Optional<String> manifestKey = inventory.find(reducedPath);
                 if (manifestKey.isPresent()) {
                     String key = buildKey(id, manifestKey.get());
 
@@ -230,15 +229,15 @@ public class VerifyService {
                                 .actual(actual)
                                 .build();
 
-                            errors.put(reducedKey, error);
+                            errors.put(reducedPath, error);
                         }
 
                     } catch (Exception e) {
                         log.error(format("Failed to get head obect of manifest entry %s", key), e);
-                        errors.put(reducedKey, VerificationError.from(e.getMessage()));
+                        errors.put(reducedPath, VerificationError.from(e.getMessage()));
                     }
                 } else {
-                    errors.put(reducedKey, VerificationError.from("Not found in inventory manifest"));
+                    errors.put(reducedPath, VerificationError.from("Not found in inventory manifest"));
                 }
             });
 
@@ -248,8 +247,8 @@ public class VerifyService {
                 .parallelStream()
                 .forEach(manifest -> {
                     for (String manifestEntry : manifest.getValue()) {
-                        String reducedKey = reduceKey(contentDirectory, manifestEntry);
-                        errors.put(reducedKey, VerificationError.from("Missing input checksum"));
+                        String reducedPath = reducePath(contentDirectory, manifestEntry);
+                        errors.put(reducedPath, VerificationError.from("Missing input checksum"));
                     }
                 });
         }
@@ -259,6 +258,17 @@ public class VerifyService {
         }
 
         return inventory;
+    }
+
+    /**
+     * Reduce path to everything after content directory.
+     *
+     * @param contentDirectory content directory
+     * @param path             path
+     * @return reduced path
+     */
+    private String reducePath(String contentDirectory, String path) {
+        return path.substring(path.indexOf(contentDirectory) + contentDirectory.length() + 1);
     }
 
 }

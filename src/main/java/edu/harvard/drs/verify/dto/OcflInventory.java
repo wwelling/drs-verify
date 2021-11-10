@@ -45,21 +45,21 @@ public class OcflInventory {
     }
 
     /**
-     * Find key in manifest ending in reduced key removing if found.
+     * Find path in manifest ending in reduced path, removing entry if found.
      *
-     * @param reducedKey reduced key
-     * @return key in manifest
+     * @param reducedPath reduced path
+     * @return path in manifest
      */
-    public Optional<String> find(String reducedKey) {
+    public Optional<String> find(String reducedPath) {
         Optional<Entry<String, List<String>>> manifestEntry = manifest.entrySet()
             .parallelStream()
             .filter(entry -> entry.getValue()
                 .stream()
-                .anyMatch(value -> value.endsWith(reducedKey)))
+                .anyMatch(value -> value.endsWith(reducedPath)))
             .findFirst();
 
         if (!manifestEntry.isPresent()) {
-            manifestEntry = derefernece(reducedKey);
+            manifestEntry = derefernece(reducedPath);
         }
 
         if (manifestEntry.isPresent()) {
@@ -69,12 +69,12 @@ public class OcflInventory {
         return manifestEntry.map(entry -> entry.getValue().get(0));
     }
 
-    private Optional<Entry<String, List<String>>> derefernece(String reducedKey) {
+    private Optional<Entry<String, List<String>>> derefernece(String reducedPath) {
         return versions.entrySet()
             .parallelStream()
             .sorted(Map.Entry.comparingByKey(Comparator.reverseOrder()))
             .map(version -> version.getValue()
-                .find(reducedKey)
+                .find(reducedPath)
                 .filter(key -> this.manifest.containsKey(key))
                 .map(key -> Map.entry(key, this.manifest.get(key))))
             .filter(entry -> entry.isPresent())

@@ -33,17 +33,17 @@ public class OcflVersion {
     private Map<String, List<String>> state = new HashMap<>();
 
     /**
-     * Find version entry key in state containing reduced key.
+     * Find version entry key in state containing reduced path.
      *
-     * @param reducedKey reduced key
+     * @param reducedPath reduced path
      * @return version entry key in state
      */
-    public Optional<String> find(String reducedKey) {
+    public Optional<String> find(String reducedPath) {
         return state.entrySet()
             .parallelStream()
             .filter(entry -> entry.getValue()
                 .stream()
-                .anyMatch(value -> value.equals(reducedKey)))
+                .anyMatch(value -> value.equals(reducedPath)))
             .findFirst()
             .map(entry -> entry.getKey());
     }
