@@ -81,7 +81,7 @@ docker-compose -f docker-compose-local.yml build --no-cache
 
 Build image for repository
 ```
-docker-compose -f docker-compose.yml build --no-cache
+docker-compose -f docker-compose.yml build --no-cache --build-arg TAG=<image tag>
 ```
 
 Run locally
