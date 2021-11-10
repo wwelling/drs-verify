@@ -33,7 +33,7 @@ import org.junit.jupiter.api.Test;
 public class OcflInventoryTest {
 
     @Test
-    public void testOcflInventoryTestContains() throws JsonParseException, JsonMappingException, IOException {
+    public void testOcflInventoryFind() throws JsonParseException, JsonMappingException, IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         File file = Path.of(
             "src/test/resources/inventory/1254624/inventory.json"
@@ -45,6 +45,40 @@ public class OcflInventoryTest {
         assertTrue(inventory.find("metadata/400000254_textMD.xml").isPresent());
         assertTrue(inventory.find("data/400000254.txt").isPresent());
         assertFalse(inventory.find("data/974358.pdf").isPresent());
+    }
+
+    @Test
+    public void testOcflInventoryFindWithLogicalPath()
+        throws JsonParseException, JsonMappingException, IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        File file = Path.of(
+            "src/test/resources/inventory/1254654/inventory.json"
+        ).toFile();
+        OcflInventory inventory = objectMapper.readValue(file, OcflInventory.class);
+
+        assertTrue(inventory.find("metadata/400005076_aes57.xml").isPresent());
+        assertTrue(inventory.find("descriptor/400005067_mets.xml").isPresent());
+        assertTrue(inventory.find("data/400005079.zip").isPresent());
+        assertTrue(inventory.find("data/400005070.wav").isPresent());
+        assertTrue(inventory.find("metadata/400005067_structureMap.xml").isPresent());
+        assertTrue(inventory.find("data/400005074.wav").isPresent());
+        assertTrue(inventory.find("data/400005078.mp3").isPresent());
+        assertTrue(inventory.find("metadata/400005077_aes57.xml").isPresent());
+        assertTrue(inventory.find("data/400005069.xml").isPresent());
+        assertTrue(inventory.find("data/400005072.adl").isPresent());
+        // logical path for metadata/400005072_textMD.xml manifest entry
+        assertTrue(inventory.find("metadata/400005075_textMD.xml").isPresent());
+        assertTrue(inventory.find("metadata/400005079_containerMD.xml").isPresent());
+        assertTrue(inventory.find("data/400005075.adl").isPresent());
+        assertTrue(inventory.find("metadata/400005073_aes57.xml").isPresent());
+        assertTrue(inventory.find("metadata/400005070_aes57.xml").isPresent());
+        assertTrue(inventory.find("metadata/400005069_textMD.xml").isPresent());
+        assertTrue(inventory.find("metadata/400005071_aes57.xml").isPresent());
+        assertTrue(inventory.find("data/400005073.wav").isPresent());
+        assertTrue(inventory.find("data/400005076.mp3").isPresent());
+        assertTrue(inventory.find("metadata/400005074_aes57.xml").isPresent());
+        assertTrue(inventory.find("data/400005077.mp3").isPresent());
+        assertTrue(inventory.find("metadata/400005078_aes57.xml").isPresent());
     }
 
 }

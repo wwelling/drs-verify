@@ -17,7 +17,6 @@
 package edu.harvard.drs.verify.service;
 
 import static edu.harvard.drs.verify.utility.KeyUtility.buildKey;
-import static edu.harvard.drs.verify.utility.KeyUtility.reduceKey;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.removeEnd;
 import static org.apache.commons.lang3.StringUtils.removeStart;
@@ -31,7 +30,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -106,62 +104,7 @@ public class VerifyService {
     public void verifyIngest(Long id, Map<String, String> input) throws IOException, VerificationException {
         log.info("Veryfing ingest object {}", id);
 
-        OcflInventory inventory = getInventory(id);
-
-        String contentDirectory = inventory.getContentDirectory();
-
-        Map<String, String> wrappedInput = new ConcurrentHashMap<>(input);
-
-        Map<String, VerificationError> errors = new ConcurrentHashMap<>();
-
-        inventory.getManifest()
-            .entrySet()
-            .parallelStream()
-            .forEach(manifest -> {
-                for (String manifestEntry : manifest.getValue()) {
-                    String key = buildKey(id, manifestEntry);
-                    String reducedKey = reduceKey(contentDirectory, manifestEntry);
-
-                    try {
-                        HeadObjectResponse response = getHeadObject(key);
-
-                        String actual = removeEnd(removeStart(response.eTag(), "\""), "\"");
-
-                        if (wrappedInput.containsKey(reducedKey)) {
-                            String expected = wrappedInput.remove(reducedKey);
-
-                            if (!expected.equals(actual)) {
-                                VerificationError error = VerificationError.builder()
-                                    .error("Checksums do not match")
-                                    .expected(expected)
-                                    .actual(actual)
-                                    .build();
-
-                                errors.put(reducedKey, error);
-                            }
-                        } else {
-                            errors.put(reducedKey, VerificationError.from("Missing input checksum"));
-                        }
-
-                    } catch (Exception e) {
-                        log.error(format("Failed to get head obect of manifest entry %s", key), e);
-                        errors.put(reducedKey, VerificationError.from(e.getMessage()));
-                    }
-                }
-            });
-
-        if (!wrappedInput.isEmpty()) {
-            wrappedInput.entrySet()
-                .parallelStream()
-                .forEach(entry -> {
-                    errors.put(entry.getKey(), VerificationError.from("Not found in inventory manifest"));
-                });
-        }
-
-        if (!errors.isEmpty()) {
-            throw new VerificationException(errors);
-        }
-
+        verify(id, input);
     }
 
     /**
@@ -175,48 +118,7 @@ public class VerifyService {
     public void verifyUpdate(Long id, Map<String, String> input) throws IOException, VerificationException {
         log.info("Veryfing update object {}", id);
 
-        OcflInventory inventory = getInventory(id);
-
-        Map<String, VerificationError> errors = new ConcurrentHashMap<>();
-
-        input.entrySet()
-            .parallelStream()
-            .forEach(entry -> {
-                String reducedKey = entry.getKey();
-                Optional<String> manifestKey = inventory.find(reducedKey);
-                if (manifestKey.isPresent()) {
-                    String key = buildKey(id, manifestKey.get());
-
-                    String expected = entry.getValue();
-
-                    try {
-                        HeadObjectResponse response = getHeadObject(key);
-
-                        String actual = removeEnd(removeStart(response.eTag(), "\""), "\"");
-
-                        if (!expected.equals(actual)) {
-                            VerificationError error = VerificationError.builder()
-                                .error("Checksums do not match")
-                                .expected(expected)
-                                .actual(actual)
-                                .build();
-
-                            errors.put(reducedKey, error);
-                        }
-
-                    } catch (Exception e) {
-                        log.error(format("Failed to get head obect of manifest entry %s", key), e);
-                        errors.put(reducedKey, VerificationError.from(e.getMessage()));
-                    }
-                } else {
-                    errors.put(reducedKey, VerificationError.from("Not found in inventory manifest"));
-                }
-            });
-
-        if (!errors.isEmpty()) {
-            throw new VerificationException(errors);
-        }
-
+        verify(id, input, true);
     }
 
     /**
@@ -257,27 +159,26 @@ public class VerifyService {
     OcflInventory reduceManifest(OcflInventory inventory) {
         String contentDirectory = inventory.getContentDirectory();
         Set<String> reducedKeys = new HashSet<>();
-        Map<String, List<String>> reducedManifest = new HashMap<>();
+        ConcurrentHashMap<String, List<String>> reducedManifest = new ConcurrentHashMap<>();
 
         inventory.getManifest().entrySet()
-            .stream()
+            .parallelStream()
             .sorted(Map.Entry.comparingByValue(new Comparator<List<String>>() {
                 @Override
                 public int compare(List<String> o1, List<String> o2) {
                     return o2.get(0).compareTo(o1.get(0));
                 }
             }))
-            .forEach(manifestEntry -> {
+            .forEachOrdered(manifestEntry -> {
                 for (String key : manifestEntry.getValue()) {
-                    String reducedKey = reduceKey(contentDirectory, key);
-                    if (reducedKeys.add(reducedKey)) {
+                    String reducedPath = reducePath(contentDirectory, key);
+                    if (reducedKeys.add(reducedPath)) {
                         reducedManifest.put(manifestEntry.getKey(), manifestEntry.getValue());
                     }
                 }
             });
 
-        inventory.setManifest(reducedManifest);
-        return inventory;
+        return inventory.withManifest(reducedManifest);
     }
 
     /**
@@ -293,6 +194,81 @@ public class VerifyService {
             .build();
 
         return this.s3.headObject(request);
+    }
+
+    private OcflInventory verify(Long id, Map<String, String> input) throws IOException, VerificationException {
+        return verify(id, input, false);
+    }
+
+    private OcflInventory verify(Long id, Map<String, String> input, boolean update)
+        throws IOException, VerificationException {
+        OcflInventory inventory = getInventory(id);
+        String contentDirectory = inventory.getContentDirectory();
+
+        Map<String, VerificationError> errors = new ConcurrentHashMap<>();
+
+        input.entrySet()
+            .parallelStream()
+            .forEach(entry -> {
+                String reducedPath = entry.getKey();
+                Optional<String> manifestKey = inventory.find(reducedPath);
+                if (manifestKey.isPresent()) {
+                    String key = buildKey(id, manifestKey.get());
+
+                    String expected = entry.getValue();
+
+                    try {
+                        HeadObjectResponse response = getHeadObject(key);
+
+                        String actual = removeEnd(removeStart(response.eTag(), "\""), "\"");
+
+                        if (!expected.equals(actual)) {
+                            VerificationError error = VerificationError.builder()
+                                .error("Checksums do not match")
+                                .expected(expected)
+                                .actual(actual)
+                                .build();
+
+                            errors.put(reducedPath, error);
+                        }
+
+                    } catch (Exception e) {
+                        log.error(format("Failed to get head obect of manifest entry %s", key), e);
+                        errors.put(reducedPath, VerificationError.from(e.getMessage()));
+                    }
+                } else {
+                    errors.put(reducedPath, VerificationError.from("Not found in inventory manifest"));
+                }
+            });
+
+        if (!update) {
+            inventory.getManifest()
+                .entrySet()
+                .parallelStream()
+                .forEach(manifest -> {
+                    for (String manifestEntry : manifest.getValue()) {
+                        String reducedPath = reducePath(contentDirectory, manifestEntry);
+                        errors.put(reducedPath, VerificationError.from("Missing input checksum"));
+                    }
+                });
+        }
+
+        if (!errors.isEmpty()) {
+            throw new VerificationException(errors);
+        }
+
+        return inventory;
+    }
+
+    /**
+     * Reduce path to everything after content directory.
+     *
+     * @param contentDirectory content directory
+     * @param path             path
+     * @return reduced path
+     */
+    private String reducePath(String contentDirectory, String path) {
+        return path.substring(path.indexOf(contentDirectory) + contentDirectory.length() + 1);
     }
 
 }

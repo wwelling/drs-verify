@@ -16,11 +16,13 @@
 
 package edu.harvard.drs.verify.dto;
 
-import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import lombok.Data;
 
 /**
@@ -34,20 +36,49 @@ public class OcflInventory {
     private String head;
     private String contentDirectory;
     private Map<String, Map<String, List<String>>> fixity = new HashMap<>();
-    private Map<String, List<String>> manifest = new HashMap<>();
+    private ConcurrentHashMap<String, List<String>> manifest = new ConcurrentHashMap<>();
     private Map<String, OcflVersion> versions = new HashMap<>();
 
+    public OcflInventory withManifest(ConcurrentHashMap<String, List<String>> manifest) {
+        this.manifest = manifest;
+        return this;
+    }
+
     /**
-     * Find key in manifest ending in reduced key.
+     * Find path in manifest ending in reduced path, removing entry if found.
      *
-     * @param reducedKey reduced key
-     * @return key in manifest
+     * @param reducedPath reduced path
+     * @return path in manifest
      */
-    public Optional<String> find(String reducedKey) {
-        return manifest.values()
+    public Optional<String> find(String reducedPath) {
+        Optional<Entry<String, List<String>>> manifestEntry = manifest.entrySet()
             .parallelStream()
-            .flatMap(Collection::stream)
-            .filter(entry -> entry.endsWith(reducedKey))
+            .filter(entry -> entry.getValue()
+                .stream()
+                .anyMatch(value -> value.endsWith(reducedPath)))
+            .findFirst();
+
+        if (!manifestEntry.isPresent()) {
+            manifestEntry = derefernece(reducedPath);
+        }
+
+        if (manifestEntry.isPresent()) {
+            manifest.remove(manifestEntry.get().getKey());
+        }
+
+        return manifestEntry.map(entry -> entry.getValue().get(0));
+    }
+
+    private Optional<Entry<String, List<String>>> derefernece(String reducedPath) {
+        return versions.entrySet()
+            .parallelStream()
+            .sorted(Map.Entry.comparingByKey(Comparator.reverseOrder()))
+            .map(version -> version.getValue()
+                .find(reducedPath)
+                .filter(key -> this.manifest.containsKey(key))
+                .map(key -> Map.entry(key, this.manifest.get(key))))
+            .filter(entry -> entry.isPresent())
+            .map(entry -> entry.get())
             .findFirst();
     }
 }

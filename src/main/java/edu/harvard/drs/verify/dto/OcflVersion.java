@@ -19,6 +19,7 @@ package edu.harvard.drs.verify.dto;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import lombok.Data;
 
 /**
@@ -30,4 +31,20 @@ public class OcflVersion {
     private String message;
     private OcflUser user;
     private Map<String, List<String>> state = new HashMap<>();
+
+    /**
+     * Find version entry key in state containing reduced path.
+     *
+     * @param reducedPath reduced path
+     * @return version entry key in state
+     */
+    public Optional<String> find(String reducedPath) {
+        return state.entrySet()
+            .parallelStream()
+            .filter(entry -> entry.getValue()
+                .stream()
+                .anyMatch(value -> value.equals(reducedPath)))
+            .findFirst()
+            .map(entry -> entry.getKey());
+    }
 }
