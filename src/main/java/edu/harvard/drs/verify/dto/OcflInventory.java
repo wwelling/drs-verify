@@ -16,15 +16,13 @@
 
 package edu.harvard.drs.verify.dto;
 
-import static java.lang.String.format;
-
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 import lombok.Data;
 
 /**
@@ -53,48 +51,34 @@ public class OcflInventory {
      * @return key in manifest
      */
     public Optional<String> find(String reducedKey) {
-        Optional<VersionEntry> versionEntry = manifest.entrySet()
+        Optional<Entry<String, List<String>>> manifestEntry = manifest.entrySet()
             .parallelStream()
             .filter(entry -> entry.getValue()
                 .stream()
                 .anyMatch(value -> value.endsWith(reducedKey)))
-            .findFirst()
-            .map(entry -> VersionEntry.builder()
-                .sha512Key(entry.getKey())
-                .values(entry.getValue())
-                .version(head)
-                .build());
+            .findFirst();
 
-        if (!versionEntry.isPresent()) {
-            versionEntry = derefernece(reducedKey);
+        if (!manifestEntry.isPresent()) {
+            manifestEntry = derefernece(reducedKey);
         }
 
-        if (versionEntry.isPresent()) {
-            manifest.remove(versionEntry.get().getSha512Key());
+        if (manifestEntry.isPresent()) {
+            manifest.remove(manifestEntry.get().getKey());
         }
 
-        return versionEntry.map(entry -> entry.getFirstValue());
+        return manifestEntry.map(entry -> entry.getValue().get(0));
     }
 
-    private Optional<VersionEntry> derefernece(String reducedKey) {
+    private Optional<Entry<String, List<String>>> derefernece(String reducedKey) {
         return versions.entrySet()
             .parallelStream()
-            .sorted(Map.Entry.comparingByKey(Comparator.reverseOrder())) 
+            .sorted(Map.Entry.comparingByKey(Comparator.reverseOrder()))
             .map(version -> version.getValue()
                 .find(reducedKey)
-                .map(entry -> VersionEntry.builder()
-                    .sha512Key(entry.getKey())
-                    .values(entry.getValue())
-                    .version(version.getKey())
-                    .build()))
+                .filter(key -> this.manifest.containsKey(key))
+                .map(key -> Map.entry(key, this.manifest.get(key))))
             .filter(entry -> entry.isPresent())
             .map(entry -> entry.get())
-            .findFirst()
-            .map(entry ->  entry.withValues(
-                entry.getValues()
-                    .stream()
-                    .map(value -> format("%s/%s/%s", entry.getVersion(), contentDirectory, value))
-                    .collect(Collectors.toList())
-            ));
+            .findFirst();
     }
 }
