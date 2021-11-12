@@ -16,7 +16,6 @@
 
 package edu.harvard.drs.verify.dto;
 
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +43,11 @@ public class OcflInventory {
         return this;
     }
 
+    public OcflInventory withVersions(Map<String, OcflVersion> versions) {
+        this.versions = versions;
+        return this;
+    }
+
     /**
      * Find path in manifest ending in reduced path, removing entry if found.
      *
@@ -59,7 +63,7 @@ public class OcflInventory {
             .findFirst();
 
         if (!manifestEntry.isPresent()) {
-            manifestEntry = derefernece(reducedPath);
+            manifestEntry = dereference(reducedPath);
         }
 
         if (manifestEntry.isPresent()) {
@@ -69,10 +73,9 @@ public class OcflInventory {
         return manifestEntry.map(entry -> entry.getValue().get(0));
     }
 
-    private Optional<Entry<String, List<String>>> derefernece(String reducedPath) {
+    private Optional<Entry<String, List<String>>> dereference(String reducedPath) {
         return versions.entrySet()
-            .parallelStream()
-            .sorted(Map.Entry.comparingByKey(Comparator.reverseOrder()))
+            .stream()
             .map(version -> version.getValue()
                 .find(reducedPath)
                 .filter(key -> this.manifest.containsKey(key))
