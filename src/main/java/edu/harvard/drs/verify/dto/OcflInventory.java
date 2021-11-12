@@ -59,7 +59,7 @@ public class OcflInventory {
             .findFirst();
 
         if (!manifestEntry.isPresent()) {
-            manifestEntry = derefernece(reducedPath);
+            manifestEntry = dereference(reducedPath);
         }
 
         if (manifestEntry.isPresent()) {
@@ -69,7 +69,7 @@ public class OcflInventory {
         return manifestEntry.map(entry -> entry.getValue().get(0));
     }
 
-    private Optional<Entry<String, List<String>>> derefernece(String reducedPath) {
+    private Optional<Entry<String, List<String>>> dereference(String reducedPath) {
         return versions.entrySet()
             .parallelStream()
             .sorted(Map.Entry.comparingByKey(Comparator.reverseOrder()))
