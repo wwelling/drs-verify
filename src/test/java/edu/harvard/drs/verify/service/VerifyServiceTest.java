@@ -478,6 +478,13 @@ public class VerifyServiceTest {
         List<String> versionKeys = new ArrayList<>(inventory.getVersions().keySet());
 
         assertEquals("v00004", versionKeys.get(0));
+        assertEquals("2021-10-25T21:00:07.88546Z", inventory.getVersions().get("v00004").getCreated());
+        assertEquals("PREMIS:metadata modification", inventory.getVersions().get("v00004").getMessage());
+        assertEquals("DRS2 Services/latest", inventory.getVersions().get("v00004").getUser().getName());
+        assertEquals(
+            "http://idtest.lib.harvard.edu:10020/wordshack/software/26986",
+            inventory.getVersions().get("v00004").getUser().getAddress()
+        );
         assertEquals(6, inventory.getVersions().get("v00004").getState().size());
 
         assertTrue(inventory.getVersions().get("v00004").getState().get(
@@ -506,6 +513,13 @@ public class VerifyServiceTest {
         ).contains("metadata/400018806_mix.xml"));
 
         assertEquals("v00003", versionKeys.get(1));
+        assertEquals("2021-10-22T13:50:52.911295Z", inventory.getVersions().get("v00003").getCreated());
+        assertEquals("PREMIS:metadata modification", inventory.getVersions().get("v00003").getMessage());
+        assertEquals("DRS2 Services/latest", inventory.getVersions().get("v00003").getUser().getName());
+        assertEquals(
+            "http://idtest.lib.harvard.edu:10020/wordshack/software/26986",
+            inventory.getVersions().get("v00003").getUser().getAddress()
+        );
         assertEquals(6, inventory.getVersions().get("v00003").getState().size());
 
         assertTrue(inventory.getVersions().get("v00003").getState().get(
@@ -534,6 +548,13 @@ public class VerifyServiceTest {
         ).contains("metadata/400018806_mix.xml"));
 
         assertEquals("v00002", versionKeys.get(2));
+        assertEquals("2021-10-21T18:50:08.010715Z", inventory.getVersions().get("v00002").getCreated());
+        assertEquals("PREMIS:metadata modification", inventory.getVersions().get("v00002").getMessage());
+        assertEquals("DRS2 Services/latest", inventory.getVersions().get("v00002").getUser().getName());
+        assertEquals(
+            "http://idtest.lib.harvard.edu:10020/wordshack/software/26986",
+            inventory.getVersions().get("v00002").getUser().getAddress()
+        );
         assertEquals(6, inventory.getVersions().get("v00002").getState().size());
 
         assertTrue(inventory.getVersions().get("v00002").getState().get(
@@ -562,6 +583,13 @@ public class VerifyServiceTest {
         ).contains("metadata/400018806_mix.xml"));
 
         assertEquals("v00001", versionKeys.get(3));
+        assertEquals("2021-10-20T02:45:19.597393Z", inventory.getVersions().get("v00001").getCreated());
+        assertEquals("PREMIS:refreshment", inventory.getVersions().get("v00001").getMessage());
+        assertEquals("DRS Migrator/2.0.1", inventory.getVersions().get("v00001").getUser().getName());
+        assertEquals(
+            "http://idtest.lib.harvard.edu:10020/wordshack/software/26906",
+            inventory.getVersions().get("v00001").getUser().getAddress()
+        );
         assertEquals(6, inventory.getVersions().get("v00001").getState().size());
 
         assertTrue(inventory.getVersions().get("v00001").getState().get(
