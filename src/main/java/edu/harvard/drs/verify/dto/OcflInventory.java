@@ -16,7 +16,6 @@
 
 package edu.harvard.drs.verify.dto;
 
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +40,11 @@ public class OcflInventory {
 
     public OcflInventory withManifest(ConcurrentHashMap<String, List<String>> manifest) {
         this.manifest = manifest;
+        return this;
+    }
+
+    public OcflInventory withVersions(Map<String, OcflVersion> versions) {
+        this.versions = versions;
         return this;
     }
 
@@ -71,8 +75,7 @@ public class OcflInventory {
 
     private Optional<Entry<String, List<String>>> dereference(String reducedPath) {
         return versions.entrySet()
-            .parallelStream()
-            .sorted(Map.Entry.comparingByKey(Comparator.reverseOrder()))
+            .stream()
             .map(version -> version.getValue()
                 .find(reducedPath)
                 .filter(key -> this.manifest.containsKey(key))

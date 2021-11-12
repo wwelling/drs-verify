@@ -24,17 +24,21 @@ import static org.apache.commons.lang3.StringUtils.removeStart;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.harvard.drs.verify.config.AwsConfig;
 import edu.harvard.drs.verify.dto.OcflInventory;
+import edu.harvard.drs.verify.dto.OcflVersion;
 import edu.harvard.drs.verify.dto.VerificationError;
 import edu.harvard.drs.verify.exception.VerificationException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -178,7 +182,13 @@ public class VerifyService {
                 }
             });
 
-        return inventory.withManifest(reducedManifest);
+        SortedMap<String, OcflVersion> orderedVersions = new TreeMap<String, OcflVersion>(
+            Collections.reverseOrder()
+        );
+        orderedVersions.putAll(inventory.getVersions());
+
+        return inventory.withManifest(reducedManifest)
+            .withVersions(orderedVersions);
     }
 
     /**
