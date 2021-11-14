@@ -37,14 +37,14 @@ public class OcflInventory {
     private Map<String, OcflVersion> versions = new HashMap<>();
 
     /**
-     * Find path in manifest ending in reduced path.
+     * Find path in manifest matching path in head state.
      *
-     * @param reducedPath reduced path
+     * @param statePath state path
      * @return path in manifest
      */
-    public Optional<String> find(String reducedPath) {
+    public Optional<String> find(String statePath) {
         return versions.get(head)
-            .find(reducedPath)
+            .find(statePath)
             .filter(key -> this.manifest.containsKey(key))
             .map(key -> Map.entry(key, this.manifest.get(key)))
             .map(entry -> entry.getValue().get(0));

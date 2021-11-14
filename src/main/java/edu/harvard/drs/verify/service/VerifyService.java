@@ -173,9 +173,9 @@ public class VerifyService {
         input.entrySet()
             .parallelStream()
             .forEach(entry -> {
-                String reducedPath = entry.getKey();
+                String statePath = entry.getKey();
 
-                Optional<String> manifestKey = inventory.find(reducedPath);
+                Optional<String> manifestKey = inventory.find(statePath);
                 if (manifestKey.isPresent()) {
                     String key = buildKey(id, manifestKey.get());
 
@@ -193,15 +193,15 @@ public class VerifyService {
                                 .actual(actual)
                                 .build();
 
-                            errors.put(reducedPath, error);
+                            errors.put(statePath, error);
                         }
 
                     } catch (Exception e) {
                         log.error(format("Failed to get head obect of manifest entry %s", key), e);
-                        errors.put(reducedPath, VerificationError.from(e.getMessage()));
+                        errors.put(statePath, VerificationError.from(e.getMessage()));
                     }
                 } else {
-                    errors.put(reducedPath, VerificationError.from("Not found in inventory manifest"));
+                    errors.put(statePath, VerificationError.from("Not found in inventory manifest"));
                 }
             });
 
