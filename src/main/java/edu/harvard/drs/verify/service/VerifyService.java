@@ -24,21 +24,15 @@ import static org.apache.commons.lang3.StringUtils.removeStart;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.harvard.drs.verify.config.AwsConfig;
 import edu.harvard.drs.verify.dto.OcflInventory;
-import edu.harvard.drs.verify.dto.OcflVersion;
 import edu.harvard.drs.verify.dto.VerificationError;
 import edu.harvard.drs.verify.exception.VerificationException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -137,7 +131,7 @@ public class VerifyService {
      * @throws S3Exception something went wrong with S3 request
      * @throws IOException something went wrong serializing OCFL inventory
      */
-    OcflInventory getInventory(Long id) throws NoSuchKeyException, InvalidObjectStateException,
+    OcflInventory fetchInventory(Long id) throws NoSuchKeyException, InvalidObjectStateException,
         AwsServiceException, SdkClientException, S3Exception, IOException {
 
         String key = buildKey(id, "inventory.json");
@@ -148,47 +142,9 @@ public class VerifyService {
             .build();
 
         try (InputStream is = this.s3.getObject(request, ResponseTransformer.toInputStream())) {
-            OcflInventory inventory = this.om.readValue(is, OcflInventory.class);
-
-            return this.reduceManifest(inventory);
+            return this.om.readValue(is, OcflInventory.class)
+                .orderVersionsDescending();
         }
-    }
-
-    /**
-     * Reduce OCFL manifest map to only latest version.
-     *
-     * @param inventory entire OCFL manifest
-     * @return OCFL inventory with manifest map reduced to latest version only
-     */
-    OcflInventory reduceManifest(OcflInventory inventory) {
-        String contentDirectory = inventory.getContentDirectory();
-        Set<String> reducedKeys = new HashSet<>();
-        ConcurrentHashMap<String, List<String>> reducedManifest = new ConcurrentHashMap<>();
-
-        inventory.getManifest().entrySet()
-            .parallelStream()
-            .sorted(Map.Entry.comparingByValue(new Comparator<List<String>>() {
-                @Override
-                public int compare(List<String> o1, List<String> o2) {
-                    return o2.get(0).compareTo(o1.get(0));
-                }
-            }))
-            .forEachOrdered(manifestEntry -> {
-                for (String key : manifestEntry.getValue()) {
-                    String reducedPath = reducePath(contentDirectory, key);
-                    if (reducedKeys.add(reducedPath)) {
-                        reducedManifest.put(manifestEntry.getKey(), manifestEntry.getValue());
-                    }
-                }
-            });
-
-        SortedMap<String, OcflVersion> orderedVersions = new TreeMap<String, OcflVersion>(
-            Collections.reverseOrder()
-        );
-        orderedVersions.putAll(inventory.getVersions());
-
-        return inventory.withManifest(reducedManifest)
-            .withVersions(orderedVersions);
     }
 
     /**
@@ -212,8 +168,7 @@ public class VerifyService {
 
     private OcflInventory verify(Long id, Map<String, String> input, boolean update)
         throws IOException, VerificationException {
-        OcflInventory inventory = getInventory(id);
-        String contentDirectory = inventory.getContentDirectory();
+        OcflInventory inventory = fetchInventory(id);
 
         Map<String, VerificationError> errors = new ConcurrentHashMap<>();
 
@@ -221,6 +176,7 @@ public class VerifyService {
             .parallelStream()
             .forEach(entry -> {
                 String reducedPath = entry.getKey();
+
                 Optional<String> manifestKey = inventory.find(reducedPath);
                 if (manifestKey.isPresent()) {
                     String key = buildKey(id, manifestKey.get());
@@ -252,14 +208,15 @@ public class VerifyService {
             });
 
         if (!update) {
-            inventory.getManifest()
-                .entrySet()
-                .parallelStream()
-                .forEach(manifest -> {
-                    for (String manifestEntry : manifest.getValue()) {
-                        String reducedPath = reducePath(contentDirectory, manifestEntry);
-                        errors.put(reducedPath, VerificationError.from("Missing input checksum"));
-                    }
+            inventory.getVersions()
+                .get(inventory.getHead())
+                .getState()
+                .values()
+                .stream()
+                .flatMap(Collection::stream)
+                .filter(statePath -> !input.containsKey(statePath))
+                .forEach(statePath -> {
+                    errors.put(statePath, VerificationError.from("Missing input checksum"));
                 });
         }
 
@@ -268,17 +225,6 @@ public class VerifyService {
         }
 
         return inventory;
-    }
-
-    /**
-     * Reduce path to everything after content directory.
-     *
-     * @param contentDirectory content directory
-     * @param path             path
-     * @return reduced path
-     */
-    private String reducePath(String contentDirectory, String path) {
-        return path.substring(path.indexOf(contentDirectory) + contentDirectory.length() + 1);
     }
 
 }

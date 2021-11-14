@@ -16,12 +16,13 @@
 
 package edu.harvard.drs.verify.dto;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import lombok.Data;
 
 /**
@@ -35,45 +36,31 @@ public class OcflInventory {
     private String head;
     private String contentDirectory;
     private Map<String, Map<String, List<String>>> fixity = new HashMap<>();
-    private ConcurrentHashMap<String, List<String>> manifest = new ConcurrentHashMap<>();
+    private Map<String, List<String>> manifest = new HashMap<>();
     private Map<String, OcflVersion> versions = new HashMap<>();
 
-    public OcflInventory withManifest(ConcurrentHashMap<String, List<String>> manifest) {
-        this.manifest = manifest;
-        return this;
-    }
+    /**
+     * Sort version keys in descending order.
+     *
+     * @return OCFL inventory with version keys in descending order
+     */
+    public OcflInventory orderVersionsDescending() {
+        SortedMap<String, OcflVersion> reverseOrderedVersions = new TreeMap<String, OcflVersion>(
+            Collections.reverseOrder()
+        );
+        reverseOrderedVersions.putAll(this.versions);
+        this.versions = reverseOrderedVersions;
 
-    public OcflInventory withVersions(Map<String, OcflVersion> versions) {
-        this.versions = versions;
         return this;
     }
 
     /**
-     * Find path in manifest ending in reduced path, removing entry if found.
+     * Find path in manifest ending in reduced path.
      *
      * @param reducedPath reduced path
      * @return path in manifest
      */
     public Optional<String> find(String reducedPath) {
-        Optional<Entry<String, List<String>>> manifestEntry = manifest.entrySet()
-            .parallelStream()
-            .filter(entry -> entry.getValue()
-                .stream()
-                .anyMatch(value -> value.endsWith(reducedPath)))
-            .findFirst();
-
-        if (!manifestEntry.isPresent()) {
-            manifestEntry = dereference(reducedPath);
-        }
-
-        if (manifestEntry.isPresent()) {
-            manifest.remove(manifestEntry.get().getKey());
-        }
-
-        return manifestEntry.map(entry -> entry.getValue().get(0));
-    }
-
-    private Optional<Entry<String, List<String>>> dereference(String reducedPath) {
         return versions.entrySet()
             .stream()
             .map(version -> version.getValue()
@@ -82,6 +69,7 @@ public class OcflInventory {
                 .map(key -> Map.entry(key, this.manifest.get(key))))
             .filter(entry -> entry.isPresent())
             .map(entry -> entry.get())
-            .findFirst();
+            .findFirst()
+            .map(entry -> entry.getValue().get(0));
     }
 }
