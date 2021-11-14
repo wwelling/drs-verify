@@ -66,7 +66,7 @@ public class OcflInventoryTest {
         assertTrue(inventory.find("metadata/400005077_aes57.xml").isPresent());
         assertTrue(inventory.find("data/400005069.xml").isPresent());
         assertTrue(inventory.find("data/400005072.adl").isPresent());
-        // logical path for metadata/400005072_textMD.xml manifest entry
+        assertTrue(inventory.find("metadata/400005072_textMD.xml").isPresent());
         assertTrue(inventory.find("metadata/400005075_textMD.xml").isPresent());
         assertTrue(inventory.find("metadata/400005079_containerMD.xml").isPresent());
         assertTrue(inventory.find("data/400005075.adl").isPresent());

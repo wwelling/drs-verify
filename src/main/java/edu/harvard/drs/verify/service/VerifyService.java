@@ -32,7 +32,6 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -142,8 +141,7 @@ public class VerifyService {
             .build();
 
         try (InputStream is = this.s3.getObject(request, ResponseTransformer.toInputStream())) {
-            return this.om.readValue(is, OcflInventory.class)
-                .orderVersionsDescending();
+            return this.om.readValue(is, OcflInventory.class);
         }
     }
 

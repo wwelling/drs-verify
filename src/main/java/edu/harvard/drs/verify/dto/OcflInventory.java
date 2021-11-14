@@ -16,13 +16,10 @@
 
 package edu.harvard.drs.verify.dto;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.SortedMap;
-import java.util.TreeMap;
 import lombok.Data;
 
 /**
@@ -40,36 +37,16 @@ public class OcflInventory {
     private Map<String, OcflVersion> versions = new HashMap<>();
 
     /**
-     * Sort version keys in descending order.
-     *
-     * @return OCFL inventory with version keys in descending order
-     */
-    public OcflInventory orderVersionsDescending() {
-        SortedMap<String, OcflVersion> reverseOrderedVersions = new TreeMap<String, OcflVersion>(
-            Collections.reverseOrder()
-        );
-        reverseOrderedVersions.putAll(this.versions);
-        this.versions = reverseOrderedVersions;
-
-        return this;
-    }
-
-    /**
      * Find path in manifest ending in reduced path.
      *
      * @param reducedPath reduced path
      * @return path in manifest
      */
     public Optional<String> find(String reducedPath) {
-        return versions.entrySet()
-            .stream()
-            .map(version -> version.getValue()
-                .find(reducedPath)
-                .filter(key -> this.manifest.containsKey(key))
-                .map(key -> Map.entry(key, this.manifest.get(key))))
-            .filter(entry -> entry.isPresent())
-            .map(entry -> entry.get())
-            .findFirst()
+        return versions.get(head)
+            .find(reducedPath)
+            .filter(key -> this.manifest.containsKey(key))
+            .map(key -> Map.entry(key, this.manifest.get(key)))
             .map(entry -> entry.getValue().get(0));
     }
 }
