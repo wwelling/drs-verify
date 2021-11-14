@@ -1,0 +1,30 @@
+{
+  "id" : "URN-3:HUL.DRS.OBJECT:101081248",
+  "type" : "https://ocfl.io/1.0/spec/#inventory",
+  "digestAlgorithm" : "sha512",
+  "head" : "v1",
+  "contentDirectory" : "content",
+  "fixity" : { },
+  "manifest" : {
+    "937b57caa6ba85fc97524a6c0ea9b6ff457b29a8682c15162b88fca49995c381458b020d8749df778b59891d1ebe1d4c0063ba9df719e25496867025f56cc1a8" : [ "v1/content/metadata/400235312_structureMap.xml" ],
+    "c79f52354bfad4f826737fa266a8c66302140aa4512211987e5e2859245d88a983860dbef42a773192df391cd52b195d4332de2ec60e642086c742e372d3bb80" : [ "v1/content/data/400235314.jp2" ],
+    "e8689aa9d8d04ffe2e0365e3fd058778cfe4109be06ddb485b64ff486c304e68891b41ccae0d235b5320a3ffb8b6585e01b05aa9d0a0983595a74670be5ba662" : [ "v1/content/descriptor/400235312_mets.xml" ],
+    "fcd8c51edbafab670249ed3b249a073b46fbb3ab93d892104744e98a3ceb274a61c954d22e9a63860569743e0b4eb66276e0a851d1979b8687c9d39fd7c93e76" : [ "v1/content/metadata/400235314_mix.xml" ]
+  },
+  "versions" : {
+    "v1" : {
+      "created" : "2021-11-12T20:17:04.256531Z",
+      "message" : "PREMIS:ingestion",
+      "user" : {
+        "name" : "Paul Aloisio",
+        "address" : "http://idtest.lib.harvard.edu:10020/wordshack/person/8804"
+      },
+      "state" : {
+        "937b57caa6ba85fc97524a6c0ea9b6ff457b29a8682c15162b88fca49995c381458b020d8749df778b59891d1ebe1d4c0063ba9df719e25496867025f56cc1a8" : [ "metadata/400235312_structureMap.xml" ],
+        "c79f52354bfad4f826737fa266a8c66302140aa4512211987e5e2859245d88a983860dbef42a773192df391cd52b195d4332de2ec60e642086c742e372d3bb80" : [ "data/400235314.jp2", "data/400235315.jp2" ],
+        "e8689aa9d8d04ffe2e0365e3fd058778cfe4109be06ddb485b64ff486c304e68891b41ccae0d235b5320a3ffb8b6585e01b05aa9d0a0983595a74670be5ba662" : [ "descriptor/400235312_mets.xml" ],
+        "fcd8c51edbafab670249ed3b249a073b46fbb3ab93d892104744e98a3ceb274a61c954d22e9a63860569743e0b4eb66276e0a851d1979b8687c9d39fd7c93e76" : [ "metadata/400235314_mix.xml", "metadata/400235315_mix.xml" ]
+      }
+    }
+  }
+}
