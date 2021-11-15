@@ -23,8 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.harvard.drs.verify.dto.OcflInventory;
 import edu.harvard.drs.verify.utility.KeyUtility;
@@ -66,8 +64,7 @@ public final class AmazonS3TestHelper {
      * @param s3 s3 client
      * @throws IOException something went wrong
      */
-    public static void setup(final S3Client s3) 
-        throws JsonParseException, JsonMappingException, IOException {
+    public static void setup(final S3Client s3) throws IOException {
         CreateBucketRequest createBucketRequest = CreateBucketRequest.builder()
             .bucket(bucket)
             .build();
@@ -174,8 +171,7 @@ public final class AmazonS3TestHelper {
         assertFalse(response.hasErrors());
     }
 
-    private static void populate(final S3Client s3)
-        throws JsonParseException, JsonMappingException, IOException {
+    private static void populate(final S3Client s3) throws IOException {
         Path path = Path.of("src/test/resources/inventory");
 
         for (File inventoryRoot : path.toFile().listFiles(File::isDirectory)) {

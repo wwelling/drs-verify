@@ -18,46 +18,19 @@ package edu.harvard.drs.verify.service;
 
 import static edu.harvard.drs.verify.utility.KeyUtility.buildKey;
 import static java.lang.String.format;
-import static org.apache.commons.lang3.StringUtils.removeEnd;
-import static org.apache.commons.lang3.StringUtils.removeStart;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import edu.harvard.drs.verify.config.AwsConfig;
 import edu.harvard.drs.verify.dto.OcflInventory;
-import edu.harvard.drs.verify.dto.OcflVersion;
 import edu.harvard.drs.verify.dto.VerificationError;
 import edu.harvard.drs.verify.exception.VerificationException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.RequestScope;
-import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
-import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
-import software.amazon.awssdk.awscore.exception.AwsServiceException;
-import software.amazon.awssdk.core.exception.SdkClientException;
-import software.amazon.awssdk.core.sync.ResponseTransformer;
-import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.S3ClientBuilder;
-import software.amazon.awssdk.services.s3.model.GetObjectRequest;
-import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
-import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
-import software.amazon.awssdk.services.s3.model.InvalidObjectStateException;
-import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
-import software.amazon.awssdk.services.s3.model.S3Exception;
 
 /**
  * Verify service.
@@ -67,34 +40,16 @@ import software.amazon.awssdk.services.s3.model.S3Exception;
 @RequestScope
 public class VerifyService {
 
-    private final String bucket;
-
-    private final S3Client s3;
-
-    private final ObjectMapper om;
+    private final S3Service s3Service;
 
     /**
-     * Construct verify service.
+     * Verify service constructor autowired.
+     *
+     * @param s3Service S3 service
      */
     @Autowired
-    public VerifyService(AwsConfig awsConfig) {
-        AwsBasicCredentials credentials = AwsBasicCredentials.create(
-            awsConfig.getAccessKeyId(),
-            awsConfig.getSecretAccessKey()
-        );
-
-        S3ClientBuilder builder = S3Client.builder()
-            .region(awsConfig.getRegion())
-            .credentialsProvider(StaticCredentialsProvider.create(credentials));
-
-        if (StringUtils.isNotEmpty(awsConfig.getEndpointOverride())) {
-            log.info("AWS endpoint override: {}", awsConfig.getEndpointOverride());
-            builder = builder.endpointOverride(URI.create(awsConfig.getEndpointOverride()));
-        }
-
-        this.bucket = awsConfig.getBucketName();
-        this.s3 = builder.build();
-        this.om = new ObjectMapper();
+    public VerifyService(S3Service s3Service) {
+        this.s3Service = s3Service;
     }
 
     /**
@@ -125,112 +80,29 @@ public class VerifyService {
         verify(id, input, true);
     }
 
-    /**
-     * Fetch OCFL inventoy.json from S3 and serialize.
-     *
-     * @param id DRS id
-     * @return serialize OCFL inventory
-     * @throws NoSuchKeyException the specified key does not exist
-     * @throws InvalidObjectStateException object is archived and inaccessible until restored
-     * @throws AwsServiceException something went wrong with S3 request
-     * @throws SdkClientException something went wrong with S3 request
-     * @throws S3Exception something went wrong with S3 request
-     * @throws IOException something went wrong serializing OCFL inventory
-     */
-    OcflInventory getInventory(Long id) throws NoSuchKeyException, InvalidObjectStateException,
-        AwsServiceException, SdkClientException, S3Exception, IOException {
-
-        String key = buildKey(id, "inventory.json");
-
-        GetObjectRequest request = GetObjectRequest.builder()
-            .bucket(bucket)
-            .key(key)
-            .build();
-
-        try (InputStream is = this.s3.getObject(request, ResponseTransformer.toInputStream())) {
-            OcflInventory inventory = this.om.readValue(is, OcflInventory.class);
-
-            return this.reduceManifest(inventory);
-        }
-    }
-
-    /**
-     * Reduce OCFL manifest map to only latest version.
-     *
-     * @param inventory entire OCFL manifest
-     * @return OCFL inventory with manifest map reduced to latest version only
-     */
-    OcflInventory reduceManifest(OcflInventory inventory) {
-        String contentDirectory = inventory.getContentDirectory();
-        Set<String> reducedKeys = new HashSet<>();
-        ConcurrentHashMap<String, List<String>> reducedManifest = new ConcurrentHashMap<>();
-
-        inventory.getManifest().entrySet()
-            .parallelStream()
-            .sorted(Map.Entry.comparingByValue(new Comparator<List<String>>() {
-                @Override
-                public int compare(List<String> o1, List<String> o2) {
-                    return o2.get(0).compareTo(o1.get(0));
-                }
-            }))
-            .forEachOrdered(manifestEntry -> {
-                for (String key : manifestEntry.getValue()) {
-                    String reducedPath = reducePath(contentDirectory, key);
-                    if (reducedKeys.add(reducedPath)) {
-                        reducedManifest.put(manifestEntry.getKey(), manifestEntry.getValue());
-                    }
-                }
-            });
-
-        SortedMap<String, OcflVersion> orderedVersions = new TreeMap<String, OcflVersion>(
-            Collections.reverseOrder()
-        );
-        orderedVersions.putAll(inventory.getVersions());
-
-        return inventory.withManifest(reducedManifest)
-            .withVersions(orderedVersions);
-    }
-
-    /**
-     * Request head object from S3 for given key.
-     *
-     * @param key S3 object key
-     * @return S3 head object response
-     */
-    HeadObjectResponse getHeadObject(String key) {
-        HeadObjectRequest request = HeadObjectRequest.builder()
-            .bucket(bucket)
-            .key(key)
-            .build();
-
-        return this.s3.headObject(request);
-    }
-
     private OcflInventory verify(Long id, Map<String, String> input) throws IOException, VerificationException {
         return verify(id, input, false);
     }
 
     private OcflInventory verify(Long id, Map<String, String> input, boolean update)
         throws IOException, VerificationException {
-        OcflInventory inventory = getInventory(id);
-        String contentDirectory = inventory.getContentDirectory();
+        OcflInventory inventory = s3Service.fetchInventory(id);
 
         Map<String, VerificationError> errors = new ConcurrentHashMap<>();
 
         input.entrySet()
             .parallelStream()
             .forEach(entry -> {
-                String reducedPath = entry.getKey();
-                Optional<String> manifestKey = inventory.find(reducedPath);
+                String statePath = entry.getKey();
+
+                Optional<String> manifestKey = inventory.find(statePath);
                 if (manifestKey.isPresent()) {
                     String key = buildKey(id, manifestKey.get());
 
                     String expected = entry.getValue();
 
                     try {
-                        HeadObjectResponse response = getHeadObject(key);
-
-                        String actual = removeEnd(removeStart(response.eTag(), "\""), "\"");
+                        String actual = s3Service.getHeadObjectEtag(key);
 
                         if (!expected.equals(actual)) {
                             VerificationError error = VerificationError.builder()
@@ -239,27 +111,28 @@ public class VerifyService {
                                 .actual(actual)
                                 .build();
 
-                            errors.put(reducedPath, error);
+                            errors.put(statePath, error);
                         }
 
                     } catch (Exception e) {
                         log.error(format("Failed to get head obect of manifest entry %s", key), e);
-                        errors.put(reducedPath, VerificationError.from(e.getMessage()));
+                        errors.put(statePath, VerificationError.from(e.getMessage()));
                     }
                 } else {
-                    errors.put(reducedPath, VerificationError.from("Not found in inventory manifest"));
+                    errors.put(statePath, VerificationError.from("Not found in inventory manifest"));
                 }
             });
 
         if (!update) {
-            inventory.getManifest()
-                .entrySet()
-                .parallelStream()
-                .forEach(manifest -> {
-                    for (String manifestEntry : manifest.getValue()) {
-                        String reducedPath = reducePath(contentDirectory, manifestEntry);
-                        errors.put(reducedPath, VerificationError.from("Missing input checksum"));
-                    }
+            inventory.getVersions()
+                .get(inventory.getHead())
+                .getState()
+                .values()
+                .stream()
+                .flatMap(Collection::stream)
+                .filter(statePath -> !input.containsKey(statePath))
+                .forEach(statePath -> {
+                    errors.put(statePath, VerificationError.from("Missing input checksum"));
                 });
         }
 
@@ -268,17 +141,6 @@ public class VerifyService {
         }
 
         return inventory;
-    }
-
-    /**
-     * Reduce path to everything after content directory.
-     *
-     * @param contentDirectory content directory
-     * @param path             path
-     * @return reduced path
-     */
-    private String reducePath(String contentDirectory, String path) {
-        return path.substring(path.indexOf(contentDirectory) + contentDirectory.length() + 1);
     }
 
 }

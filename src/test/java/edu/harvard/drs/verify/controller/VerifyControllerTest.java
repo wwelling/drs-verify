@@ -16,20 +16,24 @@
 
 package edu.harvard.drs.verify.controller;
 
+import static java.lang.String.format;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.adobe.testing.s3mock.junit5.S3MockExtension;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import edu.harvard.drs.verify.AmazonS3TestHelper;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -49,8 +53,14 @@ public class VerifyControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
+    /**
+     * Setup verify controller tests.
+     *
+     * @param s3 s3 client
+     * @throws IOException something went wrong
+     */
     @BeforeAll
-    public void setup(final S3Client s3) throws JsonParseException, JsonMappingException, IOException {
+    public void setup(final S3Client s3) throws IOException {
         AmazonS3TestHelper.setup(s3);
     }
 
@@ -59,16 +69,18 @@ public class VerifyControllerTest {
         AmazonS3TestHelper.cleanup(s3);
     }
 
-    @Test
-    public void shouldVerify() throws Exception {
-        String content = "{"
-            + "\"descriptor/400016240_mets.xml\": \"88004448277e0ca3229808bd8fa40327\","
-            + "\"data/400016242.doc\": \"f9f645a42c784c2b3d2fe93ccbaf1992\","
-            + "\"metadata/400016242_documentMD.xml\": \"68322df10a439fc9b03bb6e69c72749f\","
-            + "\"metadata/400016240_structureMap.xml\": \"06328e877392db47a2b59bfa9614470c\","
-            + "\"metadata/400016240_mods.xml\": \"2cffede56db677e4924b24622374ac3b\""
-            + "}";
-        this.mockMvc.perform(post("/verify/100000020")
+    /**
+     * Verify a set of objects.
+     *
+     * @param id object id
+     * @throws Exception something went wrong
+     */
+    @ParameterizedTest
+    @ValueSource(longs = { 100000020L, 101000305L, 101081248L, 1254624L, 1254654L, 1254709L })
+    public void shouldVerify(Long id) throws Exception {
+        Path path = Paths.get(format("src/test/resources/inventory/%s/verify.json", id));
+        String content = new String(Files.readAllBytes(path));
+        this.mockMvc.perform(post(format("/verify/%s", id))
             .content(content)
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
