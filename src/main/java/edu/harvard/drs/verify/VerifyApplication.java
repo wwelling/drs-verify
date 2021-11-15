@@ -20,10 +20,12 @@ import edu.harvard.drs.verify.config.AwsConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cache.annotation.EnableCaching;
 
 /**
  * DRS Verify Application.
  */
+@EnableCaching
 @SpringBootApplication
 @EnableConfigurationProperties(AwsConfig.class)
 public class VerifyApplication {
