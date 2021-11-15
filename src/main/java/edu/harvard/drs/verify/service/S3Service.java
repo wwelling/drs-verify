@@ -29,7 +29,6 @@ import java.net.URI;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
@@ -117,7 +116,6 @@ public class S3Service {
      * @param key S3 object key
      * @return S3 head object eTag
      */
-    @Cacheable(value = "etags", sync = true)
     public String getHeadObjectEtag(String key) {
         HeadObjectRequest request = HeadObjectRequest.builder()
             .bucket(bucket)
