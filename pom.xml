@@ -26,6 +26,13 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
+  <scm>
+    <connection>scm:git:git://github.com/harvard-lts/drs-verify.git</connection>
+    <developerConnection>scm:git:git@github.com:harvard-lts/drs-verify.git</developerConnection>
+    <url>https://github.com/harvard-lts/drs-verify</url>
+    <tag>HEAD</tag>
+  </scm>
+
   <dependencyManagement>
     <dependencies>
       <dependency>
