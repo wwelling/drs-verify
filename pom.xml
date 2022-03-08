@@ -246,4 +246,18 @@
     </plugins>
   </build>
 
+  <distributionManagement>
+    <!-- repository URL and credentials set up in local .m2/settings.xml -->
+    <repository>
+      <id>lts-libs-release-local</id>
+      <name>artifactory.lts.harvard.edu-releases</name>
+      <url>${lts-artifactory-url}/lts-libs-release-local</url>
+    </repository>
+    <snapshotRepository>
+      <id>lts-libs-snapshot-local</id>
+      <name>artifactory.lts.harvard.edu-snapshots</name>
+      <url>${lts-artifactory-url}/lts-libs-snapshot-local</url>
+    </snapshotRepository>
+  </distributionManagement>
+
 </project>
