@@ -41,6 +41,9 @@ spring:
     name: DRS Verify
   profiles:
     active: development
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
 
   devtools:
     addProperties: true
