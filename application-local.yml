@@ -1,0 +1,57 @@
+info:
+  build:
+    artifact: "@project.artifactId@"
+    name: "@project.name@"
+    description: "@project.description@"
+    version: "@project.version@"
+
+logging:
+  charset:
+    console: UTF-8
+    file: UTF-8
+  file:
+    path: # empty for console logging | path for file logging (i.e. /logs)
+  console:
+    enabled: true # true (console logging) | false (file logging)
+  level:
+    edu.harvard.drs: DEBUG
+    org.springframework: INFO
+    web: INFO
+    root: INFO
+
+management:
+  endpoint:
+    health:
+      enabled: true
+      showDetails: always
+    info:
+      enabled: true
+    logfile:
+      enabled: false # true (file logging) | false (console logging)
+  endpoints:
+    enabled-by-default: false
+    web:
+      exposure:
+        include: health, info, logfile
+
+server:
+  port: 9000
+  servlet:
+    context-path:
+
+spring:
+  application:
+    name: DRS Verify
+  profiles:
+    active: development
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
+  devtools:
+    addProperties: true
+    livereload:
+      enabled: true
+
+  main:
+    lazyInitialization: true
