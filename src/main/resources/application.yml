@@ -10,11 +10,14 @@ logging:
     console: UTF-8
     file: UTF-8
   file:
-    path: logs
+    path: /logs # empty for console logging | path for file logging (i.e. /logs)
+  console:
+    enabled: false # true (console logging) | false (file logging)
   level:
     edu.harvard.drs: DEBUG
     org.springframework: INFO
     web: INFO
+    root: INFO
 
 management:
   endpoint:
@@ -24,7 +27,7 @@ management:
     info:
       enabled: true
     logfile:
-      enabled: true
+      enabled: true # true (file logging) | false (console logging)
   endpoints:
     enabled-by-default: false
     web:
