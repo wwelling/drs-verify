@@ -2,6 +2,6 @@ version: '3.8'
 
 services:
   service:
-    image: registry.lts.harvard.edu/lts/drs_verify:${TAG}
+    image: artifactory.huit.harvard.edu/lts/drs_verify:${TAG}
     build:
       context: .
