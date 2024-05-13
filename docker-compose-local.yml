@@ -4,8 +4,10 @@ services:
   service:
     build:
       context: .
-    env_file: .env
+    environment:
+      - SPRING_CONFIG_LOCATION=/config/
     ports:
       - 9000:9000
     volumes:
       - ./logs:/logs
+      - ./application-local.yml:/config/application.yml
