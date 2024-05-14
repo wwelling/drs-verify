@@ -11,7 +11,7 @@ COPY ./src ./src
 RUN mvn package -DskipTests
 
 # final base image
-FROM registry.lts.harvard.edu/lts/lts-tomcat-base:9-jdk11
+FROM artifactory.huit.harvard.edu/lts/lts-tomcat-base:9-jdk11
 
 ARG APP_ID_NUMBER=61
 ARG APP_ID_NAME=drsadm
